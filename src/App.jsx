@@ -4,11 +4,10 @@ import Homepage from "./components/homepage/HomePage";
 import Login from "./components/login/Login";
 import Dashboard from "./components/dashboard/Dashboard";
 import ClientiPage from "./components/clientiPage/clientiPage";
+import InserisciClientePage from "./components/inserisciClientePage/inserisciClientePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import authService from "./services/authService";
 
-// Componente separato per gestire il redirect da /login
-// Si ri-valuta ad ogni render invece di una sola volta al mount
 function LoginRoute() {
   return authService.isAuthenticated() ? (
     <Navigate to="/dashboard" replace />
@@ -44,8 +43,16 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/clienti/nuovo"
+          element={
+            <ProtectedRoute>
+              <InserisciClientePage />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* Rotta 404 - Pagina non trovata */}
+        {/* Rotta 404 */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

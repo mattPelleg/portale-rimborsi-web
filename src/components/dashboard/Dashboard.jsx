@@ -151,19 +151,19 @@ const Dashboard = () => {
 
           {/* Quick Actions */}
           <div className="quick-actions">
-            <button className="quick-action-btn quick-action-primary">
-              <Plus size={18} />
-              Nuovo Cliente
-            </button>
-            <button className="quick-action-btn quick-action-secondary">
-              <Plus size={18} />
-              Nuovo Modulo
-            </button>
-            <button className="quick-action-btn quick-action-secondary">
-              <Plus size={18} />
-              Nova Pratica
-            </button>
-          </div>
+          <button className="quick-action-btn quick-action-primary" onClick={() => navigate('/clienti/nuovo')}>
+            <Plus size={18} />
+            Nuovo Cliente
+          </button>
+          <button className="quick-action-btn quick-action-secondary">
+            <Plus size={18} />
+            Nuovo Modulo
+          </button>
+          <button className="quick-action-btn quick-action-secondary">
+            <Plus size={18} />
+            Nova Pratica
+          </button>
+        </div>
 
           {/* Stats Cards */}
           <div className="stats-grid">
