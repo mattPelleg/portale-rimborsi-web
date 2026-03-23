@@ -5,6 +5,8 @@ import Login from "./components/login/Login";
 import Dashboard from "./components/dashboard/Dashboard";
 import ClientiPage from "./components/clientiPage/clientiPage";
 import InserisciClientePage from "./components/inserisciClientePage/inserisciClientePage";
+import ModuliPage from "./components/moduliPage/moduliPage";
+import InserisciModuloPage from "./components/inserisciModuloPage/inserisciModuloPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import authService from "./services/authService";
 
@@ -20,39 +22,15 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Rotta pubblica - Homepage */}
         <Route path="/" element={<Homepage />} />
-
-        {/* Rotta pubblica - Login */}
         <Route path="/login" element={<LoginRoute />} />
 
-        {/* Rotte protette */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/clienti"
-          element={
-            <ProtectedRoute>
-              <ClientiPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/clienti/nuovo"
-          element={
-            <ProtectedRoute>
-              <InserisciClientePage />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/clienti" element={<ProtectedRoute><ClientiPage /></ProtectedRoute>} />
+        <Route path="/clienti/nuovo" element={<ProtectedRoute><InserisciClientePage /></ProtectedRoute>} />
+        <Route path="/moduli" element={<ProtectedRoute><ModuliPage /></ProtectedRoute>} />
+        <Route path="/moduli/nuovo" element={<ProtectedRoute><InserisciModuloPage /></ProtectedRoute>} />
 
-        {/* Rotta 404 */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

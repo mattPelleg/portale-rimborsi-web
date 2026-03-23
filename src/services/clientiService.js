@@ -26,6 +26,16 @@ class ClientiService {
     );
     return response.data;
   }
+  
+  async cercaCliente(codiceFiscale) {
+    const response = await axios.post(
+      `${API_BASE_URL}/cliente-service/cerca-cliente`,
+      { codiceFiscale },
+      { headers: this.getAuthHeader() }
+    );
+    return response.data;
+  }
 }
+
 
 export default new ClientiService();

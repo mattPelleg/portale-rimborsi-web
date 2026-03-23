@@ -155,7 +155,7 @@ const Dashboard = () => {
             <Plus size={18} />
             Nuovo Cliente
           </button>
-          <button className="quick-action-btn quick-action-secondary">
+          <button className="quick-action-btn quick-action-secondary" onClick={() => navigate('/moduli/nuovo')}>
             <Plus size={18} />
             Nuovo Modulo
           </button>
