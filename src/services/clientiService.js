@@ -27,10 +27,10 @@ class ClientiService {
     return response.data;
   }
   
-  async cercaCliente(codiceFiscale) {
+  async cercaCliente(cognome) {
     const response = await axios.post(
       `${API_BASE_URL}/cliente-service/cerca-cliente`,
-      { codiceFiscale },
+      { cognome },
       { headers: this.getAuthHeader() }
     );
     return response.data;

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import authService from '../../services/authService';
 import clientiService from '../../services/clientiService';
+import moduliService from '../../services/moduliService';
 import {
   LayoutDashboard, Users, FileText, ClipboardList,
   Settings, LogOut, Plane, Bell, User,
@@ -18,59 +19,82 @@ const MENU = [
 ];
 
 const INITIAL_FORM = {
-  codiceFiscaleRicerca: '',
-  numeroVolo:           '',
-  dataVolo:             '',
-  aeroportoPartenza:    '',
-  aeroportoArrivo:      '',
-  compagnia:            '',
-  disservizio:          '',
-  email:                '',
-  telefono:             '',
-  indirizzo:            '',
-  descrizione:          '',
+  cognomeRicerca:    '',
+  numeroVolo:        '',
+  dataVolo:          '',
+  aeroportoPartenza: '',
+  aeroportoArrivo:   '',
+  compagnia:         '',
+  disservizio:       '',
+  email:             '',
+  telefono:          '',
+  indirizzo:         '',
+  descrizione:       '',
 };
 
 const InserisciModuloPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [form, setForm]                   = useState(INITIAL_FORM);
-  const [errors, setErrors]               = useState({});
-  const [isLoading, setLoading]           = useState(false);
-  const [esito, setEsito]                 = useState(null);
-  const [msgEsito, setMsgEsito]           = useState('');
+  const [form, setForm]         = useState(INITIAL_FORM);
+  const [errors, setErrors]     = useState({});
+  const [isLoading, setLoading] = useState(false);
+  const [esito, setEsito]       = useState(null);
+  const [msgEsito, setMsgEsito] = useState('');
 
-  // stato ricerca cliente
   const [clienteTrovato, setClienteTrovato]     = useState(null);
   const [cercandoCliente, setCercandoCliente]   = useState(false);
+  const [risultatiRicerca, setRisultatiRicerca] = useState([]);
+  const [dropdownAperto, setDropdownAperto]     = useState(false);
   const [erroreCliente, setErroreCliente]       = useState('');
 
-  /* ── debounce ricerca cliente per CF ── */
-  useEffect(() => {
-    const cf = form.codiceFiscaleRicerca.trim();
+  const searchWrapRef   = useRef(null);
+  const selezionandoRef = useRef(false);
 
-    setClienteTrovato(null);
+  // chiude il dropdown cliccando fuori
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchWrapRef.current && !searchWrapRef.current.contains(e.target)) {
+        setDropdownAperto(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // debounce ricerca per cognome
+  useEffect(() => {
+    if (selezionandoRef.current) {
+      selezionandoRef.current = false;
+      return;
+    }
+
+    const cognome = form.cognomeRicerca.trim();
+
+    setRisultatiRicerca([]);
+    setDropdownAperto(false);
     setErroreCliente('');
 
-    if (!cf) return;
+    if (!cognome) return;
 
+    setClienteTrovato(null);
     setCercandoCliente(true);
 
     const timer = setTimeout(async () => {
       try {
-        const risposta = await clientiService.cercaCliente(cf);
+        const risposta = await clientiService.cercaCliente(cognome);
         const codice   = risposta?.listaEsiti?.[0]?.codice;
 
         if (codice === 100 && risposta.listaClienti?.length > 0) {
-          setClienteTrovato(risposta.listaClienti[0]);
+          setRisultatiRicerca(risposta.listaClienti);
+          setDropdownAperto(true);
           setErroreCliente('');
         } else {
-          setClienteTrovato(null);
-          setErroreCliente('Nessun cliente attivo trovato con questo codice fiscale.');
+          setRisultatiRicerca([]);
+          setErroreCliente('Nessun cliente attivo trovato con questo cognome.');
         }
       } catch {
-        setClienteTrovato(null);
+        setRisultatiRicerca([]);
         setErroreCliente('Errore durante la ricerca del cliente.');
       } finally {
         setCercandoCliente(false);
@@ -81,9 +105,25 @@ const InserisciModuloPage = () => {
       clearTimeout(timer);
       setCercandoCliente(false);
     };
-  }, [form.codiceFiscaleRicerca]);
+  }, [form.cognomeRicerca]);
 
-  /* ── handlers ── */
+  const handleSelezionaCliente = (cliente) => {
+    selezionandoRef.current = true;
+    setClienteTrovato(cliente);
+    setForm(prev => ({ ...prev, cognomeRicerca: `${cliente.cognome} ${cliente.nome}` }));
+    setRisultatiRicerca([]);
+    setDropdownAperto(false);
+    setErroreCliente('');
+    if (errors.cognomeRicerca) setErrors(prev => ({ ...prev, cognomeRicerca: '' }));
+  };
+
+  const handleDeselezionaCliente = () => {
+    setClienteTrovato(null);
+    setForm(prev => ({ ...prev, cognomeRicerca: '' }));
+    setRisultatiRicerca([]);
+    setErroreCliente('');
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
@@ -94,7 +134,7 @@ const InserisciModuloPage = () => {
   const validate = () => {
     const e = {};
     if (!clienteTrovato)
-      e.codiceFiscaleRicerca = 'Devi selezionare un cliente valido';
+      e.cognomeRicerca = 'Devi selezionare un cliente dalla lista';
     if (!form.disservizio)
       e.disservizio = 'Il tipo di disservizio e obbligatorio';
     if (!form.numeroVolo.trim())
@@ -114,43 +154,50 @@ const InserisciModuloPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!validate()) return;
-    setLoading(true);
-    setEsito(null);
+  if (!validate()) return;
+  setLoading(true);
+  setEsito(null);
 
-    try {
-      // collegamento al moduliService da implementare
-      // const risposta = await moduliService.inserisciModulo({ ... });
-      console.log('Dati modulo da inviare:', {
-        clienteId:         clienteTrovato.id,
-        disservizio:       { codice: form.disservizio },
-        numeroVolo:        form.numeroVolo.trim(),
-        dataVolo:          form.dataVolo,
-        aeroportoPartenza: form.aeroportoPartenza.trim().toUpperCase(),
-        aeroportoArrivo:   form.aeroportoArrivo.trim().toUpperCase(),
-        compagnia:         form.compagnia.trim(),
-        email:             form.email.trim(),
-        telefono:          form.telefono.trim() || null,
-        indirizzo:         form.indirizzo.trim() || null,
-        descrizione:       form.descrizione.trim() || null,
-      });
+  try {
+    const datiModulo = {
+      clienteId:         clienteTrovato.id,
+      disservizio:       { codice: form.disservizio },
+      numeroVolo:        form.numeroVolo.trim(),
+      dataVolo:          form.dataVolo,
+      aeroportoPartenza: form.aeroportoPartenza.trim().toUpperCase(),
+      aeroportoArrivo:   form.aeroportoArrivo.trim().toUpperCase(),
+      compagnia:         form.compagnia.trim(),
+      email:             form.email.trim(),
+      telefono:          form.telefono.trim() || null,
+      indirizzo:         form.indirizzo.trim() || null,
+      descrizione:       form.descrizione.trim() || null,
+    };
 
-      // placeholder finche il backend non e pronto
+    const risposta = await moduliService.inserisciModulo(datiModulo);
+
+    const esitoBackend = risposta?.listaEsiti?.[0];
+    const codice       = esitoBackend?.codice;
+    const messaggio    = esitoBackend?.descrizione ?? 'Operazione completata.';
+
+    if (codice === 100) {
       setEsito('ok');
-      setMsgEsito('Modulo inserito con successo.');
       setForm(INITIAL_FORM);
       setClienteTrovato(null);
-
-    } catch (error) {
-      const messaggioErrore =
-        error.response?.data?.listaEsiti?.[0]?.descrizione ||
-        'Errore durante l\'inserimento. Riprova.';
+    } else {
       setEsito('errore');
-      setMsgEsito(messaggioErrore);
-    } finally {
-      setLoading(false);
     }
-  };
+    setMsgEsito(messaggio);
+
+  } catch (error) {
+    const messaggioErrore =
+      error.response?.data?.listaEsiti?.[0]?.descrizione ||
+      'Errore durante l\'inserimento. Riprova.';
+    setEsito('errore');
+    setMsgEsito(messaggioErrore);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleAnnulla = () => navigate('/moduli');
 
@@ -159,7 +206,6 @@ const InserisciModuloPage = () => {
     navigate('/login');
   };
 
-  /* ── render ── */
   return (
     <div className="im-root">
 
@@ -196,7 +242,6 @@ const InserisciModuloPage = () => {
       {/* MAIN */}
       <div className="im-main">
 
-        {/* topbar */}
         <header className="im-topbar">
           <div className="im-topbar-left">
             <h1 className="im-topbar-title">Moduli Rimborso</h1>
@@ -214,7 +259,6 @@ const InserisciModuloPage = () => {
           </div>
         </header>
 
-        {/* body */}
         <div className="im-body">
 
           <button className="im-back-btn" onClick={handleAnnulla}>
@@ -229,7 +273,6 @@ const InserisciModuloPage = () => {
               <p className="im-card-sub">Compila i campi per registrare una nuova richiesta di rimborso</p>
             </div>
 
-            {/* banner esito */}
             {esito === 'ok' && (
               <div className="im-banner im-banner-ok">
                 <CheckCircle2 size={18} />
@@ -245,57 +288,94 @@ const InserisciModuloPage = () => {
 
             <div className="im-form">
 
-              {/* ── SEZIONE CLIENTE ── */}
+              {/* SEZIONE CLIENTE */}
               <div className="im-section-title">Dati Cliente</div>
 
               <div className="im-field im-field-full">
                 <label className="im-label">
-                  Codice Fiscale Cliente <span className="im-required">*</span>
+                  Cerca Cliente per Cognome <span className="im-required">*</span>
                 </label>
-                <div className="im-search-wrap">
-                  <div className="im-search-input-wrap">
-                    <Search size={15} className="im-search-ico" />
-                    <input
-                      name="codiceFiscaleRicerca"
-                      className={`im-input im-input-search ${errors.codiceFiscaleRicerca ? 'im-input-err' : ''}`}
-                      placeholder="Es. RSSMRA80A01H501K"
-                      value={form.codiceFiscaleRicerca}
-                      onChange={handleChange}
+
+                {clienteTrovato ? (
+                  <div className="im-cliente-selezionato">
+                    <CheckCircle2 size={16} className="im-cliente-ok-ico" />
+                    <div className="im-cliente-sel-info">
+                      <span className="im-cliente-sel-nome">
+                        {clienteTrovato.cognome} {clienteTrovato.nome}
+                      </span>
+                      <span className="im-cliente-sel-cf">
+                        {clienteTrovato.codiceFiscale}
+                      </span>
+                    </div>
+                    <span className="im-cliente-sel-tipo">
+                      {clienteTrovato.tipoCliente?.codice === 'AGENZIA'
+                        ? clienteTrovato.nomeAgenzia
+                        : 'Privato'}
+                    </span>
+                    <button
+                      className="im-cliente-desel-btn"
+                      onClick={handleDeselezionaCliente}
+                      title="Cambia cliente"
                       disabled={isLoading}
-                      maxLength={16}
-                    />
-                    {cercandoCliente && (
-                      <div className="im-search-spinner" />
+                    >
+                      <XCircle size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="im-autocomplete-wrap" ref={searchWrapRef}>
+                    <div className="im-search-input-wrap">
+                      <Search size={15} className="im-search-ico" />
+                      <input
+                        name="cognomeRicerca"
+                        className={`im-input im-input-search ${errors.cognomeRicerca ? 'im-input-err' : ''}`}
+                        placeholder="Es. Rossi"
+                        value={form.cognomeRicerca}
+                        onChange={handleChange}
+                        disabled={isLoading}
+                        autoComplete="off"
+                      />
+                      {cercandoCliente && <div className="im-search-spinner" />}
+                    </div>
+
+                    {dropdownAperto && risultatiRicerca.length > 0 && (
+                      <div className="im-dropdown">
+                        {risultatiRicerca.map(c => (
+                          <button
+                            key={c.id}
+                            className="im-dropdown-item"
+                            onClick={() => handleSelezionaCliente(c)}
+                          >
+                            <div className="im-dropdown-nome">
+                              {c.cognome} {c.nome}
+                            </div>
+                            <div className="im-dropdown-cf">
+                              {c.codiceFiscale}
+                            </div>
+                            <div className="im-dropdown-tipo">
+                              {c.tipoCliente?.codice === 'AGENZIA'
+                                ? c.nomeAgenzia
+                                : 'Privato'}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {erroreCliente && (
+                      <div className="im-cliente-errore">
+                        <XCircle size={14} />
+                        <span>{erroreCliente}</span>
+                      </div>
                     )}
                   </div>
+                )}
 
-                  {/* risultato ricerca */}
-                  {clienteTrovato && (
-                    <div className="im-cliente-trovato">
-                      <CheckCircle2 size={15} className="im-cliente-ok-ico" />
-                      <span className="im-cliente-nome">
-                        {clienteTrovato.nome} {clienteTrovato.cognome}
-                      </span>
-                      <span className="im-cliente-tipo">
-                        {clienteTrovato.tipoCliente?.codice === 'AGENZIA'
-                          ? clienteTrovato.nomeAgenzia
-                          : 'Privato'}
-                      </span>
-                    </div>
-                  )}
-                  {erroreCliente && (
-                    <div className="im-cliente-errore">
-                      <XCircle size={14} />
-                      <span>{erroreCliente}</span>
-                    </div>
-                  )}
-                </div>
-                {errors.codiceFiscaleRicerca && (
-                  <span className="im-err-msg">{errors.codiceFiscaleRicerca}</span>
+                {errors.cognomeRicerca && (
+                  <span className="im-err-msg">{errors.cognomeRicerca}</span>
                 )}
               </div>
 
-              {/* ── SEZIONE VOLO ── */}
+              {/* SEZIONE VOLO */}
               <div className="im-section-title">Dati Volo</div>
 
               <div className="im-field">
@@ -310,9 +390,7 @@ const InserisciModuloPage = () => {
                   onChange={handleChange}
                   disabled={isLoading}
                 />
-                {errors.numeroVolo && (
-                  <span className="im-err-msg">{errors.numeroVolo}</span>
-                )}
+                {errors.numeroVolo && <span className="im-err-msg">{errors.numeroVolo}</span>}
               </div>
 
               <div className="im-field">
@@ -327,9 +405,7 @@ const InserisciModuloPage = () => {
                   onChange={handleChange}
                   disabled={isLoading}
                 />
-                {errors.dataVolo && (
-                  <span className="im-err-msg">{errors.dataVolo}</span>
-                )}
+                {errors.dataVolo && <span className="im-err-msg">{errors.dataVolo}</span>}
               </div>
 
               <div className="im-field">
@@ -345,9 +421,7 @@ const InserisciModuloPage = () => {
                   disabled={isLoading}
                   maxLength={3}
                 />
-                {errors.aeroportoPartenza && (
-                  <span className="im-err-msg">{errors.aeroportoPartenza}</span>
-                )}
+                {errors.aeroportoPartenza && <span className="im-err-msg">{errors.aeroportoPartenza}</span>}
               </div>
 
               <div className="im-field">
@@ -363,9 +437,7 @@ const InserisciModuloPage = () => {
                   disabled={isLoading}
                   maxLength={3}
                 />
-                {errors.aeroportoArrivo && (
-                  <span className="im-err-msg">{errors.aeroportoArrivo}</span>
-                )}
+                {errors.aeroportoArrivo && <span className="im-err-msg">{errors.aeroportoArrivo}</span>}
               </div>
 
               <div className="im-field">
@@ -380,9 +452,7 @@ const InserisciModuloPage = () => {
                   onChange={handleChange}
                   disabled={isLoading}
                 />
-                {errors.compagnia && (
-                  <span className="im-err-msg">{errors.compagnia}</span>
-                )}
+                {errors.compagnia && <span className="im-err-msg">{errors.compagnia}</span>}
               </div>
 
               <div className="im-field">
@@ -404,12 +474,10 @@ const InserisciModuloPage = () => {
                   <option value="PERDITA_COINCIDENZA">Perdita Coincidenza</option>
                   <option value="DECLASSAMENTO">Declassamento</option>
                 </select>
-                {errors.disservizio && (
-                  <span className="im-err-msg">{errors.disservizio}</span>
-                )}
+                {errors.disservizio && <span className="im-err-msg">{errors.disservizio}</span>}
               </div>
 
-              {/* ── SEZIONE CONTATTI ── */}
+              {/* SEZIONE CONTATTI */}
               <div className="im-section-title">Dati di Contatto</div>
 
               <div className="im-field">
@@ -425,9 +493,7 @@ const InserisciModuloPage = () => {
                   onChange={handleChange}
                   disabled={isLoading}
                 />
-                {errors.email && (
-                  <span className="im-err-msg">{errors.email}</span>
-                )}
+                {errors.email && <span className="im-err-msg">{errors.email}</span>}
               </div>
 
               <div className="im-field">
@@ -454,7 +520,7 @@ const InserisciModuloPage = () => {
                 />
               </div>
 
-              {/* ── SEZIONE DESCRIZIONE ── */}
+              {/* SEZIONE DESCRIZIONE */}
               <div className="im-section-title">Dettagli Disservizio</div>
 
               <div className="im-field im-field-full">
@@ -472,30 +538,15 @@ const InserisciModuloPage = () => {
 
             </div>
 
-            {/* azioni */}
             <div className="im-actions">
-              <button
-                className="im-btn-secondary"
-                onClick={handleAnnulla}
-                disabled={isLoading}
-              >
+              <button className="im-btn-secondary" onClick={handleAnnulla} disabled={isLoading}>
                 Annulla
               </button>
-              <button
-                className="im-btn-primary"
-                onClick={handleSubmit}
-                disabled={isLoading}
-              >
+              <button className="im-btn-primary" onClick={handleSubmit} disabled={isLoading}>
                 {isLoading ? (
-                  <>
-                    <div className="im-spinner" />
-                    <span>Salvataggio...</span>
-                  </>
+                  <><div className="im-spinner" /><span>Salvataggio...</span></>
                 ) : (
-                  <>
-                    <Save size={16} />
-                    <span>Salva Modulo</span>
-                  </>
+                  <><Save size={16} /><span>Salva Modulo</span></>
                 )}
               </button>
             </div>

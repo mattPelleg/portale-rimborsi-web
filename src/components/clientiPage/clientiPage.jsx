@@ -218,7 +218,7 @@ const ClientiPage = () => {
 
               {/* header colonne */}
               <div className="cp-tbl-hdr">
-                <span>Codice Fiscale</span>
+                <span>ID</span>
                 <span>Nome</span>
                 <span>Cognome</span>
                 <span>Tipo</span>
@@ -244,7 +244,7 @@ const ClientiPage = () => {
                   const tipo  = c.tipoCliente?.codice ?? '';
                   return (
                     <div key={c.id} className="cp-tbl-row">
-                      <span className="cp-cell-cf">{c.codiceFiscale}</span>
+                      <span className="cp-cell-cf">{c.id}</span>
                       <span className="cp-cell-nome">{c.nome}</span>
                       <span className="cp-cell-cognome">{c.cognome}</span>
 

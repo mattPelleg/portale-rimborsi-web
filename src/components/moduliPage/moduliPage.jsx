@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import authService from '../../services/authService';
+import moduliService from '../../services/moduliService';
 import {
   LayoutDashboard, Users, FileText, ClipboardList,
   Settings, LogOut, Plane, Search, Bell,
@@ -22,26 +23,45 @@ const ModuliPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [moduli, setModuli]               = useState([]);
-  const [loading, setLoading]             = useState(true);
-  const [errore, setErrore]               = useState('');
-  const [search, setSearch]               = useState('');
-  const [filtroStato, setFiltroStato]     = useState('tutti');
+  const [moduli, setModuli]                       = useState([]);
+  const [loading, setLoading]                     = useState(true);
+  const [errore, setErrore]                       = useState('');
+  const [search, setSearch]                       = useState('');
+  const [filtroStato, setFiltroStato]             = useState('tutti');
   const [filtroDisservizio, setFiltroDisservizio] = useState('tutti');
-  const [pagina, setPagina]               = useState(1);
+  const [pagina, setPagina]                       = useState(1);
 
   useEffect(() => {
-    // collegamento al backend da implementare con moduliService
-    setLoading(false);
+    const caricaModuli = async () => {
+      try {
+        const risposta = await moduliService.visualizzaModuli();
+        const codice   = risposta?.listaEsiti?.[0]?.codice;
+
+        if (codice === 100 && risposta.listaModuli?.length > 0) {
+          setModuli(risposta.listaModuli);
+        } else {
+          setModuli([]);
+        }
+      } catch (e) {
+        setErrore('Errore nel caricamento dei moduli.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    caricaModuli();
   }, []);
 
   const filtrati = moduli.filter(m => {
     const s = search.toLowerCase();
+    const nomeCliente = m.cliente
+      ? `${m.cliente.cognome ?? ''} ${m.cliente.nome ?? ''}`.toLowerCase()
+      : '';
+
     const matchSearch =
       !s ||
       m.numeroVolo?.toLowerCase().includes(s) ||
       m.compagnia?.toLowerCase().includes(s) ||
-      m.cliente?.toLowerCase().includes(s);
+      nomeCliente.includes(s);
 
     const stato       = m.stato?.codice ?? '';
     const disservizio = m.disservizio?.codice ?? '';
@@ -81,31 +101,23 @@ const ModuliPage = () => {
   };
 
   const getStatoClass = (codice) => {
-    const map = {
-      'IN_ATTESA': 'attesa',
-      'APPROVATO': 'approvato',
-      'RESPINTO':  'respinto',
-    };
+    const map = { 'IN_ATTESA': 'attesa', 'APPROVATO': 'approvato', 'RESPINTO': 'respinto' };
     return map[codice] ?? '';
   };
 
   const getStatoLabel = (codice) => {
-    const map = {
-      'IN_ATTESA': 'In Attesa',
-      'APPROVATO': 'Approvato',
-      'RESPINTO':  'Respinto',
-    };
+    const map = { 'IN_ATTESA': 'In Attesa', 'APPROVATO': 'Approvato', 'RESPINTO': 'Respinto' };
     return map[codice] ?? codice;
   };
 
   const getDisservizioLabel = (codice) => {
     const map = {
-      'RITARDO_AEREO':      'Ritardo Aereo',
-      'VOLO_CANCELLATO':    'Volo Cancellato',
-      'OVERBOOKING':        'Overbooking',
-      'BAGAGLIO_SMARRITO':  'Bagaglio Smarrito',
-      'PERDITA_COINCIDENZA':'Perdita Coincidenza',
-      'DECLASSAMENTO':      'Declassamento',
+      'RITARDO_AEREO':       'Ritardo Aereo',
+      'VOLO_CANCELLATO':     'Volo Cancellato',
+      'OVERBOOKING':         'Overbooking',
+      'BAGAGLIO_SMARRITO':   'Bagaglio Smarrito',
+      'PERDITA_COINCIDENZA': 'Perdita Coincidenza',
+      'DECLASSAMENTO':       'Declassamento',
     };
     return map[codice] ?? codice;
   };
@@ -146,7 +158,6 @@ const ModuliPage = () => {
       {/* MAIN */}
       <div className="mp-main">
 
-        {/* topbar */}
         <header className="mp-topbar">
           <div className="mp-topbar-left">
             <h1 className="mp-topbar-title">Moduli Rimborso</h1>
@@ -173,10 +184,8 @@ const ModuliPage = () => {
           </div>
         </header>
 
-        {/* body */}
         <div className="mp-body">
 
-          {/* header pagina */}
           <div className="mp-page-hdr">
             <div>
               <h2 className="mp-page-title">Lista Moduli</h2>
@@ -192,10 +201,8 @@ const ModuliPage = () => {
             </button>
           </div>
 
-          {/* filtri */}
           <div className="mp-filtri">
             <div className="mp-filtri-inner">
-
               <div className="mp-filtro-wrap">
                 <Filter size={14} className="mp-filtro-ico" />
                 <select
@@ -234,11 +241,9 @@ const ModuliPage = () => {
             </div>
           </div>
 
-          {/* tabella */}
           <div className="mp-panel">
             <div className="mp-tbl">
 
-              {/* header colonne */}
               <div className="mp-tbl-hdr">
                 <span>Cliente</span>
                 <span>N. Volo</span>
@@ -251,7 +256,6 @@ const ModuliPage = () => {
                 <span />
               </div>
 
-              {/* righe / stati */}
               {loading ? (
                 <div className="mp-empty">
                   <p>Caricamento in corso...</p>
@@ -264,9 +268,12 @@ const ModuliPage = () => {
                 slice.map(m => {
                   const statoCodice = m.stato?.codice ?? '';
                   const disCodice   = m.disservizio?.codice ?? '';
+                  const nomeCliente = m.cliente
+                    ? `${m.cliente.cognome ?? ''} ${m.cliente.nome ?? ''}`.trim()
+                    : '—';
                   return (
                     <div key={m.id} className="mp-tbl-row">
-                      <span className="mp-cell-cliente">{m.cliente ?? '—'}</span>
+                      <span className="mp-cell-cliente">{nomeCliente}</span>
                       <span className="mp-cell-volo">{m.numeroVolo ?? '—'}</span>
                       <span className="mp-cell-data">
                         {m.dataVolo
@@ -306,7 +313,6 @@ const ModuliPage = () => {
               )}
             </div>
 
-            {/* paginazione */}
             {!loading && !errore && totalPag > 1 && (
               <div className="mp-pag">
                 <span className="mp-pag-info">
