@@ -4,24 +4,6 @@ const API_BASE_URL = '/portaleRimborsi-ws/api';
 
 class AuthService {
 
-  constructor() {
-    // Interceptor globale: se il backend risponde 401, logout automatico
-    axios.interceptors.response.use(
-      response => response,
-      error => {
-        if (error.response?.status === 401) {
-          // Evita loop infinito se il 401 arriva dalla chiamata di logout stessa
-          const isLogoutCall = error.config?.url?.includes('/auth/logout');
-          if (!isLogoutCall) {
-            this._clearLocalStorage();
-            window.location.href = '/login';
-          }
-        }
-        return Promise.reject(error);
-      }
-    );
-  }
-
   async login(username, password) {
     try {
       const response = await axios.post(`${API_BASE_URL}/auth/login`, {

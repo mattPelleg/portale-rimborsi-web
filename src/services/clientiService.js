@@ -12,8 +12,7 @@ class ClientiService {
 
   async visualizzaClienti() {
     const response = await axios.get(
-      `${API_BASE_URL}/cliente-service/visualizza-clienti`,
-      { headers: this.getAuthHeader() }
+      `${API_BASE_URL}/cliente-service/visualizza-clienti`
     );
     return response.data.listaClienti;
   }
