@@ -192,7 +192,7 @@ const ModuliPage = () => {
               <span className="mp-page-count">
                 {loading
                   ? 'Caricamento...'
-                  : `${filtrati.length} modulo${filtrati.length !== 1 ? 'i' : ''} trovato${filtrati.length !== 1 ? 'i' : ''}`
+                  : `${filtrati.length} ${filtrati.length !== 1 ? 'moduli trovati' : 'modulo trovato'}`
                 }
               </span>
             </div>
@@ -298,7 +298,13 @@ const ModuliPage = () => {
                           : '—'}
                       </span>
                       <span className="mp-cell-azioni">
-                        <button className="mp-btn-eye" title="Vedi dettaglio">
+                        <button
+                          className="mp-btn-eye"
+                          title="Vedi dettaglio"
+                          onClick={() => {
+                            navigate(`/moduli/${m.id}`);
+                          }}
+                        >
                           <Eye size={16} />
                         </button>
                       </span>

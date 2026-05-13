@@ -167,7 +167,7 @@ const ClientiPage = () => {
               <span className="cp-page-count">
                 {loading
                   ? 'Caricamento...'
-                  : `${filtrati.length} cliente${filtrati.length !== 1 ? 'i' : ''} trovato${filtrati.length !== 1 ? 'i' : ''}`
+                  : `${filtrati.length} ${filtrati.length !== 1 ? 'clienti trovati' : 'cliente trovato'}`
                 }
               </span>
             </div>

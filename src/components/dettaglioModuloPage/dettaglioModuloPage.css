@@ -1,0 +1,548 @@
+/* =====================================================================
+   DettaglioModuloPage.css — prefisso dm-
+   Visual language identico alle altre pagine
+   ===================================================================== */
+
+/* ─── ROOT ────────────────────────────────────────────────────────── */
+.dm-root {
+  display: flex;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #e0e7ff 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ─── SIDEBAR ─────────────────────────────────────────────────────── */
+.dm-sidebar {
+  width: 240px;
+  min-height: 100vh;
+  background: #1e293b;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  z-index: 100;
+  box-shadow: 4px 0 12px rgba(0,0,0,0.15);
+}
+
+.dm-sidebar-head {
+  padding: 1.5rem 1.25rem;
+  border-bottom: 1px solid #334155;
+}
+
+.dm-logo { display: flex; align-items: center; gap: 0.75rem; }
+
+.dm-logo-icon {
+  background: linear-gradient(45deg, #2563eb, #4f46e5);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.dm-logo-txt { font-size: 1rem; font-weight: 700; color: #f1f5f9; }
+
+.dm-sidebar-nav {
+  flex: 1;
+  padding: 1rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  overflow-y: auto;
+}
+
+.dm-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 0.6rem;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+
+.dm-nav-item:hover { background: #334155; color: #f1f5f9; }
+
+.dm-nav-item.active {
+  background: linear-gradient(45deg, #2563eb, #4f46e5);
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(37,99,235,0.3);
+}
+
+.dm-nav-ico { flex-shrink: 0; }
+
+.dm-sidebar-foot {
+  padding: 1rem 0.75rem;
+  border-top: 1px solid #334155;
+}
+
+.dm-logout {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 0.6rem;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+
+.dm-logout:hover { background: #dc2626; color: #fff; }
+
+/* ─── MAIN ────────────────────────────────────────────────────────── */
+.dm-main {
+  margin-left: 240px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ─── TOPBAR ──────────────────────────────────────────────────────── */
+.dm-topbar {
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.dm-topbar-left { display: flex; flex-direction: column; }
+
+.dm-topbar-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.dm-topbar-sub { font-size: 0.8rem; color: #64748b; margin: 0.15rem 0 0; }
+
+.dm-topbar-right { display: flex; align-items: center; gap: 1rem; }
+
+.dm-bell {
+  position: relative;
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.dm-bell:hover { background: #f1f5f9; color: #2563eb; }
+
+.dm-bell-badge {
+  position: absolute;
+  top: 0; right: 0;
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dm-topbar-user { display: flex; align-items: center; gap: 0.5rem; }
+
+.dm-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #2563eb, #4f46e5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.dm-user-name { font-size: 0.8rem; font-weight: 600; color: #1e293b; }
+
+/* ─── BODY ────────────────────────────────────────────────────────── */
+.dm-body {
+  flex: 1;
+  padding: 1.75rem 2rem;
+}
+
+/* ─── BACK BUTTON ─────────────────────────────────────────────────── */
+.dm-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.3rem 0;
+  margin-bottom: 1.25rem;
+  transition: opacity 0.2s ease;
+}
+
+.dm-back-btn:hover { opacity: 0.75; }
+
+/* ─── LOADING / ERRORE ────────────────────────────────────────────── */
+.dm-loading {
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.dm-errore {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.25rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.6rem;
+  color: #991b1b;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* ─── HEADER MODULO ───────────────────────────────────────────────── */
+.dm-header-modulo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.dm-header-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.dm-modulo-id {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+/* badge stato */
+.dm-badge-stato {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.dm-badge-stato.attesa  { background: #fef3c7; color: #92400e; }
+.dm-badge-stato.approvato { background: #dcfce7; color: #166534; }
+.dm-badge-stato.respinto  { background: #fee2e2; color: #991b1b; }
+
+/* azioni */
+.dm-azioni {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.dm-btn-approva {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 0.6rem;
+  border: none;
+  background: linear-gradient(45deg, #16a34a, #15803d);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(22,163,74,0.3);
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.dm-btn-approva:hover:not(:disabled) {
+  background: linear-gradient(45deg, #15803d, #166534);
+  transform: translateY(-1px);
+}
+
+.dm-btn-approva:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.dm-btn-respingi {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 0.6rem;
+  border: none;
+  background: linear-gradient(45deg, #dc2626, #b91c1c);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(220,38,38,0.3);
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.dm-btn-respingi:hover:not(:disabled) {
+  background: linear-gradient(45deg, #b91c1c, #991b1b);
+  transform: translateY(-1px);
+}
+
+.dm-btn-respingi:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ─── BANNER ESITO ────────────────────────────────────────────────── */
+.dm-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.25rem;
+  border-radius: 0.6rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.dm-banner-ok  { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.dm-banner-err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+/* ─── FORM RIFIUTO ────────────────────────────────────────────────── */
+.dm-rifiuto-card {
+  background: #fff;
+  border: 1px solid #fecaca;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 2px 8px rgba(220,38,38,0.08);
+}
+
+.dm-rifiuto-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #991b1b;
+  margin-bottom: 0.75rem;
+}
+
+.dm-rifiuto-ico { color: #dc2626; }
+
+.dm-rifiuto-textarea {
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  color: #1e293b;
+  background: #f8fafc;
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.dm-rifiuto-textarea:focus {
+  border-color: #dc2626;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(220,38,38,0.1);
+}
+
+.dm-textarea-err { border-color: #dc2626; background: #fef2f2; }
+
+.dm-err-msg { font-size: 0.75rem; color: #dc2626; font-weight: 500; margin-top: 0.3rem; display: block; }
+
+.dm-rifiuto-azioni {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.85rem;
+}
+
+.dm-btn-annulla-rifiuto {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #475569;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.dm-btn-annulla-rifiuto:hover { background: #f8fafc; }
+
+.dm-btn-conferma-rifiuto {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.dm-btn-conferma-rifiuto:hover:not(:disabled) { background: #b91c1c; }
+.dm-btn-conferma-rifiuto:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ─── MOTIVO RESPINTO ─────────────────────────────────────────────── */
+.dm-motivo-respinto {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.85rem 1.25rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.6rem;
+  color: #991b1b;
+  margin-bottom: 1.25rem;
+}
+
+.dm-motivo-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.dm-motivo-testo { font-size: 0.85rem; margin: 0; color: #7f1d1d; }
+
+/* ─── GRID SEZIONI ────────────────────────────────────────────────── */
+.dm-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+/* ─── CARD SEZIONE ────────────────────────────────────────────────── */
+.dm-card {
+  background: #fff;
+  border-radius: 0.85rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.dm-card-full { grid-column: 1 / -1; }
+
+.dm-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.25rem;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.dm-card-body {
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ─── FIELD ───────────────────────────────────────────────────────── */
+.dm-field {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.dm-field-ico { color: #94a3b8; flex-shrink: 0; margin-top: 0.1rem; }
+
+.dm-field-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  min-width: 130px;
+  flex-shrink: 0;
+}
+
+.dm-field-value {
+  font-size: 0.85rem;
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.dm-cf {
+  font-family: 'Courier New', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  color: #2563eb;
+}
+
+.dm-volo {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  color: #2563eb;
+  font-size: 0.9rem;
+}
+
+/* ─── DESCRIZIONE ─────────────────────────────────────────────────── */
+.dm-descrizione {
+  font-size: 0.85rem;
+  color: #374151;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ─── RESPONSIVE ──────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .dm-grid { grid-template-columns: 1fr; }
+  .dm-card-full { grid-column: 1; }
+}
+
+@media (max-width: 768px) {
+  .dm-sidebar { width: 70px; }
+  .dm-logo-txt, .dm-nav-lbl, .dm-logout span { display: none; }
+  .dm-nav-item, .dm-logout { justify-content: center; padding: 0.7rem; }
+  .dm-main { margin-left: 70px; }
+  .dm-topbar { padding: 1rem; }
+  .dm-body { padding: 1.25rem 1rem; }
+  .dm-header-modulo { flex-direction: column; align-items: flex-start; }
+  .dm-azioni { width: 100%; }
+  .dm-btn-approva, .dm-btn-respingi { flex: 1; justify-content: center; }
+}

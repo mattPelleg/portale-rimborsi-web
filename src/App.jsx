@@ -7,6 +7,8 @@ import ClientiPage from "./components/clientiPage/clientiPage";
 import InserisciClientePage from "./components/inserisciClientePage/inserisciClientePage";
 import ModuliPage from "./components/moduliPage/moduliPage";
 import InserisciModuloPage from "./components/inserisciModuloPage/inserisciModuloPage";
+import DettaglioModuloPage from "./components/dettaglioModuloPage/DettaglioModuloPage";
+import PratichePage from "./components/pratichePage/PratichePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import authService from "./services/authService";
 
@@ -30,7 +32,9 @@ function App() {
         <Route path="/clienti/nuovo" element={<ProtectedRoute><InserisciClientePage /></ProtectedRoute>} />
         <Route path="/moduli" element={<ProtectedRoute><ModuliPage /></ProtectedRoute>} />
         <Route path="/moduli/nuovo" element={<ProtectedRoute><InserisciModuloPage /></ProtectedRoute>} />
-
+        <Route path="/moduli/:id" element={<ProtectedRoute><DettaglioModuloPage /></ProtectedRoute>} />
+        <Route path="/pratiche" element={<ProtectedRoute><PratichePage /></ProtectedRoute>} />
+        {/* <Route path="/pratiche/:id" element={<ProtectedRoute><DettaglioPraticaPage /></ProtectedRoute>} /> */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

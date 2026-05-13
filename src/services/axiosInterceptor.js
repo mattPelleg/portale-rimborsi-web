@@ -17,14 +17,16 @@ axios.interceptors.request.use(
 
 // Interceptor per gestire risposte 401 (token scaduto)
 axios.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      // Token scaduto o non valido
-      authService.logout();
-      window.location.href = '/login';
+    if (error.response?.status === 401) {
+      const isLogoutCall = error.config?.url?.includes('/auth/logout');
+      const isLoginCall  = error.config?.url?.includes('/auth/login');
+      
+      if (!isLogoutCall && !isLoginCall) {
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

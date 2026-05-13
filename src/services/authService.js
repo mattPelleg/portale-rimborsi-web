@@ -62,17 +62,21 @@ class AuthService {
 
   handleError(error) {
     if (error.response) {
-      const status = error.response.status;
+      const status  = error.response.status;
       const message = error.response.data;
 
       if (status === 401) {
-        return new Error('Credenziali non valide. Verifica username e password.');
+        // legge il messaggio dal backend se è una stringa, altrimenti fallback
+        const backendMessage = typeof message === 'string'
+          ? message
+          : 'Credenziali non valide. Verifica username e password.';
+        return new Error(backendMessage);
       } else if (status === 403) {
         return new Error('Accesso negato. Account non autorizzato.');
       } else if (status === 500) {
-        return new Error('Errore del server. Riprova piu tardi.');
+        return new Error('Errore del server. Riprova più tardi.');
       } else {
-        return new Error(message || 'Errore durante il login.');
+        return new Error(typeof message === 'string' ? message : 'Errore durante il login.');
       }
     } else if (error.request) {
       return new Error('Impossibile contattare il server. Verifica la connessione.');

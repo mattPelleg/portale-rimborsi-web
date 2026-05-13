@@ -26,6 +26,32 @@ class ModuliService {
     );
     return response.data;
   }
+
+  async visualizzaModulo(id) {
+    const response = await axios.get(
+      `${API_BASE_URL}/modulo-service/visualizza-modulo/${id}`,
+      { headers: this.getAuthHeader() }
+    );
+    return response.data;
+  }
+
+  async approvaModulo(id) {
+    const response = await axios.post(
+      `${API_BASE_URL}/modulo-service/approva-modulo`,
+      { moduloId: id },
+      { headers: this.getAuthHeader() }
+    );
+    return response.data;
+  }
+
+  async respingiModulo(id, motivoRespinto) {
+    const response = await axios.post(
+      `${API_BASE_URL}/modulo-service/respingi-modulo`,
+      { moduloId: id, motivoRespinto },
+      { headers: this.getAuthHeader() }
+    );
+    return response.data;
+  }
 }
 
 export default new ModuliService();
