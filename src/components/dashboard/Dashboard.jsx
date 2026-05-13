@@ -56,7 +56,6 @@ const Dashboard = () => {
     { id: 'clienti',      label: 'Clienti',         icon: <Users size={20} />,           path: '/clienti' },
     { id: 'moduli',       label: 'Moduli Rimborso', icon: <FileText size={20} />,        path: '/moduli' },
     { id: 'pratiche',     label: 'Pratiche',        icon: <ClipboardList size={20} />,   path: '/pratiche' },
-    { id: 'impostazioni', label: 'Impostazioni',   icon: <Settings size={20} />,         path: '/impostazioni' },
   ];
 
   const getStatoClass = (stato) => {

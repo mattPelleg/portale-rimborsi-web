@@ -3,39 +3,44 @@ import authService from './authService';
 
 const API_BASE_URL = '/portaleRimborsi-ws';
 
-class PraticheService {
+class TipologicaService {
 
   getAuthHeader() {
     const token = authService.getToken();
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
-  async visualizzaPratiche() {
+  async getStatiPratica() {
     const response = await axios.get(
-      `${API_BASE_URL}/pratica-service/visualizza-pratiche`,
+      `${API_BASE_URL}/tipologica-service/stati-pratica`,
       { headers: this.getAuthHeader() }
     );
     return response.data;
   }
 
-  async visualizzaPratica(id) {
+  async getStatiModulo() {
     const response = await axios.get(
-      `${API_BASE_URL}/pratica-service/visualizza-pratica/${id}`,
-      { headers: this.getAuthHeader() }
-    );
-    return response.data;
-  }
-  
-  async aggiornaStatoPratica(praticaId, statoPratica) {
-    const response = await axios.post(
-      `${API_BASE_URL}/pratica-service/aggiorna-stato-pratica`,
-      { praticaId, statoPratica },
+      `${API_BASE_URL}/tipologica-service/stati-modulo`,
       { headers: this.getAuthHeader() }
     );
     return response.data;
   }
 
+  async getDisservizi() {
+    const response = await axios.get(
+      `${API_BASE_URL}/tipologica-service/disservizi`,
+      { headers: this.getAuthHeader() }
+    );
+    return response.data;
+  }
+
+  async getTipiCliente() {
+    const response = await axios.get(
+      `${API_BASE_URL}/tipologica-service/tipi-cliente`,
+      { headers: this.getAuthHeader() }
+    );
+    return response.data;
+  }
 }
 
-
-export default new PraticheService();
+export default new TipologicaService();

@@ -34,6 +34,14 @@ class ClientiService {
     );
     return response.data;
   }
+
+  async visualizzaCliente(id) {
+  const response = await axios.get(
+      `${API_BASE_URL}/cliente-service/visualizza-cliente/${id}`,
+      { headers: this.getAuthHeader() }
+      );
+    return response.data;
+  }
 }
 
 

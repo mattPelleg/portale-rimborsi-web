@@ -16,7 +16,6 @@ const MENU = [
   { id: 'clienti',      label: 'Clienti',         Icon: Users,           path: '/clienti' },
   { id: 'moduli',       label: 'Moduli Rimborso', Icon: FileText,        path: '/moduli' },
   { id: 'pratiche',     label: 'Pratiche',        Icon: ClipboardList,   path: '/pratiche' },
-  { id: 'impostazioni', label: 'Impostazioni',    Icon: Settings,        path: '/impostazioni' },
 ];
 
 const PratichePage = () => {

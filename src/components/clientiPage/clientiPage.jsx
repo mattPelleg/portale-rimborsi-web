@@ -16,7 +16,6 @@ const MENU = [
   { id: 'clienti',      label: 'Clienti',         Icon: Users,           path: '/clienti' },
   { id: 'moduli',       label: 'Moduli Rimborso', Icon: FileText,        path: '/moduli' },
   { id: 'pratiche',     label: 'Pratiche',        Icon: ClipboardList,   path: '/pratiche' },
-  { id: 'impostazioni', label: 'Impostazioni',    Icon: Settings,        path: '/impostazioni' },
 ];
 
 const ClientiPage = () => {
@@ -248,24 +247,36 @@ const ClientiPage = () => {
                       <span className="cp-cell-nome">{c.nome}</span>
                       <span className="cp-cell-cognome">{c.cognome}</span>
 
-                      <span className={`cp-badge-tipo ${tipo === 'AGENZIA' ? 'agenzia' : 'privato'}`}>
-                        {tipo === 'AGENZIA' ? 'Agenzia' : 'Privato'}
+                      <span
+                        className={`cp-badge-tipo ${tipo === "AGENZIA" ? "agenzia" : "privato"}`}
+                      >
+                        {tipo === "AGENZIA" ? "Agenzia" : "Privato"}
                       </span>
 
-                      <span className="cp-cell-agenzia">{c.nomeAgenzia || '—'}</span>
+                      <span className="cp-cell-agenzia">
+                        {c.nomeAgenzia || "—"}
+                      </span>
                       <span className="cp-cell-pratiche">—</span>
 
-                      <span className={`cp-badge-stato ${stato === 'chiuso' ? 'chiuso' : 'attivo'}`}>
-                        {stato === 'chiuso' ? 'Chiuso' : 'Attivo'}
+                      <span
+                        className={`cp-badge-stato ${stato === "chiuso" ? "chiuso" : "attivo"}`}
+                      >
+                        {stato === "chiuso" ? "Chiuso" : "Attivo"}
                       </span>
 
                       <span className="cp-cell-data">
                         {c.dataCreazione
-                          ? new Date(c.dataCreazione).toLocaleDateString('it-IT')
-                          : '—'}
+                          ? new Date(c.dataCreazione).toLocaleDateString(
+                              "it-IT",
+                            )
+                          : "—"}
                       </span>
                       <span className="cp-cell-azioni">
-                        <button className="cp-btn-eye" title="Vedi dettaglio">
+                        <button
+                          className="cp-btn-eye"
+                          title="Vedi dettaglio"
+                          onClick={() => navigate(`/clienti/${c.id}`)}
+                        >
                           <Eye size={16} />
                         </button>
                       </span>
