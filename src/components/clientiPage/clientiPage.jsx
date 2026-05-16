@@ -16,6 +16,7 @@ const MENU = [
   { id: 'clienti',      label: 'Clienti',         Icon: Users,           path: '/clienti' },
   { id: 'moduli',       label: 'Moduli Rimborso', Icon: FileText,        path: '/moduli' },
   { id: 'pratiche',     label: 'Pratiche',        Icon: ClipboardList,   path: '/pratiche' },
+  { id: 'impostazioni', label: 'Impostazioni',    Icon: Settings,        path: '/impostazioni' },
 ];
 
 const ClientiPage = () => {
@@ -51,10 +52,8 @@ const ClientiPage = () => {
       c.nome.toLowerCase().includes(s) ||
       c.cognome.toLowerCase().includes(s) ||
       c.codiceFiscale.toLowerCase().includes(s);
-
     const tipo  = c.tipoCliente?.codice ?? '';
     const stato = c.dataFine ? 'chiuso' : 'attivo';
-
     return (
       matchSearch &&
       (filtroTipo  === 'tutti' || tipo  === filtroTipo) &&
@@ -66,217 +65,135 @@ const ClientiPage = () => {
   const pag      = Math.min(pagina, totalPag);
   const slice    = filtrati.slice((pag - 1) * PER_PAGINA, pag * PER_PAGINA);
 
-  const reset = () => {
-    setSearch('');
-    setFiltroTipo('tutti');
-    setFiltroStato('tutti');
-    setPagina(1);
-  };
-
-  const goPage = (n) => {
-    if (n >= 1 && n <= totalPag) setPagina(n);
-  };
-
+  const reset = () => { setSearch(''); setFiltroTipo('tutti'); setFiltroStato('tutti'); setPagina(1); };
+  const goPage = (n) => { if (n >= 1 && n <= totalPag) setPagina(n); };
   const genPagine = () => {
     if (totalPag <= 5) return Array.from({ length: totalPag }, (_, i) => i + 1);
     const set = new Set([1, pag - 1, pag, pag + 1, totalPag]);
     return [...set].filter(n => n >= 1 && n <= totalPag).sort((a, b) => a - b);
   };
   const pagine = genPagine();
-
-  const handleLogout = async () => {
-    await authService.logout();
-    navigate('/login');
-  };
+  const handleLogout = async () => { await authService.logout(); navigate('/login'); };
 
   return (
-    <div className="cp-root">
-
-      {/* SIDEBAR */}
-      <aside className="cp-sidebar">
-        <div className="cp-sidebar-head">
-          <div className="cp-logo">
-            <div className="cp-logo-icon">
-              <Plane size={20} />
-            </div>
-            <span className="cp-logo-txt">EasyFlyRefund</span>
+    <div className="g-root">
+      <aside className="g-sidebar">
+        <div className="g-sidebar-head">
+          <div className="g-logo">
+            <div className="g-logo-icon"><Plane size={20} /></div>
+            <span className="g-logo-txt">EasyFlyRefund</span>
           </div>
         </div>
-
-        <nav className="cp-sidebar-nav">
+        <nav className="g-sidebar-nav">
           {MENU.map(m => (
-            <button
-              key={m.id}
-              className={`cp-nav-item ${location.pathname === m.path ? 'active' : ''}`}
-              onClick={() => navigate(m.path)}
-            >
-              <m.Icon size={20} className="cp-nav-ico" />
-              <span className="cp-nav-lbl">{m.label}</span>
+            <button key={m.id}
+              className={`g-nav-item ${location.pathname === m.path ? 'active' : ''}`}
+              onClick={() => navigate(m.path)}>
+              <m.Icon size={20} className="g-nav-ico" />
+              <span className="g-nav-lbl">{m.label}</span>
             </button>
           ))}
         </nav>
-
-        <div className="cp-sidebar-foot">
-          <button className="cp-logout" onClick={handleLogout}>
-            <LogOut size={18} />
-            <span>Logout</span>
+        <div className="g-sidebar-foot">
+          <button className="g-logout" onClick={handleLogout}>
+            <LogOut size={18} /><span>Logout</span>
           </button>
         </div>
       </aside>
 
-      {/* MAIN */}
-      <div className="cp-main">
-
-        {/* topbar */}
-        <header className="cp-topbar">
-          <div className="cp-topbar-left">
-            <h1 className="cp-topbar-title">Clienti</h1>
-            <p className="cp-topbar-sub">Gestione anagrafica clienti</p>
+      <div className="g-main">
+        <header className="g-topbar">
+          <div className="g-topbar-left">
+            <h1 className="g-topbar-title">Clienti</h1>
+            <p className="g-topbar-sub">Gestione anagrafica clienti</p>
           </div>
-          <div className="cp-topbar-right">
-            <div className="cp-topbar-search">
-              <Search size={15} className="cp-search-ico" />
-              <input
-                className="cp-search-input"
-                placeholder="Cerca nome, cognome, CF..."
-                value={search}
-                onChange={e => { setSearch(e.target.value); setPagina(1); }}
-              />
+          <div className="g-topbar-right">
+            <div className="g-topbar-search">
+              <Search size={15} className="g-search-ico" />
+              <input className="g-search-input" placeholder="Cerca nome, cognome, CF..."
+                value={search} onChange={e => { setSearch(e.target.value); setPagina(1); }} />
             </div>
-            <button className="cp-bell">
-              <Bell size={20} />
-              <span className="cp-bell-badge">3</span>
-            </button>
-            <div className="cp-topbar-user">
-              <div className="cp-avatar">
-                <User size={18} />
-              </div>
-              <span className="cp-user-name">Admin</span>
+            <button className="g-bell"><Bell size={20} /><span className="g-bell-badge">3</span></button>
+            <div className="g-topbar-user">
+              <div className="g-avatar"><User size={18} /></div>
+              <span className="g-user-name">Admin</span>
             </div>
           </div>
         </header>
 
-        {/* body */}
-        <div className="cp-body">
-
-          {/* header pagina */}
-          <div className="cp-page-hdr">
+        <div className="g-body">
+          <div className="g-page-hdr">
             <div>
-              <h2 className="cp-page-title">Lista Clienti</h2>
-              <span className="cp-page-count">
-                {loading
-                  ? 'Caricamento...'
-                  : `${filtrati.length} ${filtrati.length !== 1 ? 'clienti trovati' : 'cliente trovato'}`
-                }
+              <h2 className="g-page-title">Lista Clienti</h2>
+              <span className="g-page-count">
+                {loading ? 'Caricamento...' : `${filtrati.length} ${filtrati.length !== 1 ? 'clienti trovati' : 'cliente trovato'}`}
               </span>
             </div>
-            <button className="cp-btn-primary" onClick={() => navigate('/clienti/nuovo')}>
+            <button className="g-btn-primary" onClick={() => navigate('/clienti/nuovo')}>
               <Plus size={17} /> Nuovo Cliente
             </button>
           </div>
 
-          {/* filtri */}
-          <div className="cp-filtri">
-            <div className="cp-filtri-inner">
-              <div className="cp-filtro-wrap">
-                <Filter size={14} className="cp-filtro-ico" />
-                <select
-                  className="cp-filtro-sel"
-                  value={filtroTipo}
-                  onChange={e => { setFiltroTipo(e.target.value); setPagina(1); }}
-                >
+          <div className="g-filtri">
+            <div className="g-filtri-inner">
+              <div className="g-filtro-wrap">
+                <Filter size={14} className="g-filtro-ico" />
+                <select className="g-filtro-sel" value={filtroTipo}
+                  onChange={e => { setFiltroTipo(e.target.value); setPagina(1); }}>
                   <option value="tutti">Tutti i tipi</option>
                   <option value="PRIVATO">Privato</option>
                   <option value="AGENZIA">Agenzia</option>
                 </select>
               </div>
-
-              <div className="cp-filtro-wrap">
-                <select
-                  className="cp-filtro-sel"
-                  value={filtroStato}
-                  onChange={e => { setFiltroStato(e.target.value); setPagina(1); }}
-                >
+              <div className="g-filtro-wrap">
+                <select className="g-filtro-sel" value={filtroStato}
+                  onChange={e => { setFiltroStato(e.target.value); setPagina(1); }}>
                   <option value="tutti">Tutti gli stati</option>
                   <option value="attivo">Attivo</option>
                   <option value="chiuso">Chiuso</option>
                 </select>
               </div>
-
               {(filtroTipo !== 'tutti' || filtroStato !== 'tutti' || search !== '') && (
-                <button className="cp-reset" onClick={reset}>
-                  Resetta filtri
-                </button>
+                <button className="g-reset" onClick={reset}>Resetta filtri</button>
               )}
             </div>
           </div>
 
-          {/* tabella */}
-          <div className="cp-panel">
-            <div className="cp-tbl">
-
-              {/* header colonne */}
-              <div className="cp-tbl-hdr">
-                <span>ID</span>
-                <span>Nome</span>
-                <span>Cognome</span>
-                <span>Tipo</span>
-                <span>Agenzia</span>
-                <span>Pratiche</span>
-                <span>Stato</span>
-                <span>Registrazione</span>
-                <span />
+          <div className="g-panel">
+            <div className="g-tbl">
+              <div className="g-tbl-hdr cp-tbl-hdr">
+                <span>ID</span><span>Nome</span><span>Cognome</span><span>Tipo</span>
+                <span>Agenzia</span><span>Pratiche</span><span>Stato</span>
+                <span>Registrazione</span><span />
               </div>
 
-              {/* righe / stati */}
               {loading ? (
-                <div className="cp-empty">
-                  <p>Caricamento in corso...</p>
-                </div>
+                <div className="g-empty"><p>Caricamento in corso...</p></div>
               ) : errore ? (
-                <div className="cp-empty">
-                  <p>{errore}</p>
-                </div>
+                <div className="g-empty"><p>{errore}</p></div>
               ) : slice.length > 0 ? (
                 slice.map(c => {
                   const stato = c.dataFine ? 'chiuso' : 'attivo';
                   const tipo  = c.tipoCliente?.codice ?? '';
                   return (
-                    <div key={c.id} className="cp-tbl-row">
-                      <span className="cp-cell-cf">{c.id}</span>
+                    <div key={c.id} className="g-tbl-row cp-tbl-row">
+                      <span className="g-cell-mono">{c.id}</span>
                       <span className="cp-cell-nome">{c.nome}</span>
                       <span className="cp-cell-cognome">{c.cognome}</span>
-
-                      <span
-                        className={`cp-badge-tipo ${tipo === "AGENZIA" ? "agenzia" : "privato"}`}
-                      >
-                        {tipo === "AGENZIA" ? "Agenzia" : "Privato"}
+                      <span className={`g-badge ${tipo === 'AGENZIA' ? 'agenzia' : 'privato'}`}>
+                        {tipo === 'AGENZIA' ? 'Agenzia' : 'Privato'}
                       </span>
-
-                      <span className="cp-cell-agenzia">
-                        {c.nomeAgenzia || "—"}
-                      </span>
+                      <span className="cp-cell-agenzia">{c.nomeAgenzia || '—'}</span>
                       <span className="cp-cell-pratiche">—</span>
-
-                      <span
-                        className={`cp-badge-stato ${stato === "chiuso" ? "chiuso" : "attivo"}`}
-                      >
-                        {stato === "chiuso" ? "Chiuso" : "Attivo"}
+                      <span className={`g-badge ${stato}`}>
+                        {stato === 'chiuso' ? 'Chiuso' : 'Attivo'}
                       </span>
-
-                      <span className="cp-cell-data">
-                        {c.dataCreazione
-                          ? new Date(c.dataCreazione).toLocaleDateString(
-                              "it-IT",
-                            )
-                          : "—"}
+                      <span className="g-cell-data">
+                        {c.dataCreazione ? new Date(c.dataCreazione).toLocaleDateString('it-IT') : '—'}
                       </span>
-                      <span className="cp-cell-azioni">
-                        <button
-                          className="cp-btn-eye"
-                          title="Vedi dettaglio"
-                          onClick={() => navigate(`/clienti/${c.id}`)}
-                        >
+                      <span className="g-cell-azioni">
+                        <button className="g-btn-eye" title="Vedi dettaglio"
+                          onClick={() => navigate(`/clienti/${c.id}`)}>
                           <Eye size={16} />
                         </button>
                       </span>
@@ -284,54 +201,38 @@ const ClientiPage = () => {
                   );
                 })
               ) : (
-                <div className="cp-empty">
-                  <Users size={38} className="cp-empty-ico" />
+                <div className="g-empty">
+                  <Users size={38} className="g-empty-ico" />
                   <p>Nessun cliente trovato con i filtri applicati</p>
                 </div>
               )}
             </div>
 
-            {/* paginazione */}
             {!loading && !errore && totalPag > 1 && (
-              <div className="cp-pag">
-                <span className="cp-pag-info">
+              <div className="g-pag">
+                <span className="g-pag-info">
                   Mostro {(pag - 1) * PER_PAGINA + 1}–{Math.min(pag * PER_PAGINA, filtrati.length)} di {filtrati.length}
                 </span>
-                <div className="cp-pag-ctrls">
-                  <button
-                    className={`cp-pag-btn ${pag === 1 ? 'disabled' : ''}`}
-                    onClick={() => goPage(pag - 1)}
-                    disabled={pag === 1}
-                  >
+                <div className="g-pag-ctrls">
+                  <button className={`g-pag-btn ${pag === 1 ? 'disabled' : ''}`}
+                    onClick={() => goPage(pag - 1)} disabled={pag === 1}>
                     <ChevronLeft size={15} />
                   </button>
-
                   {pagine.map((n, i) => (
                     <React.Fragment key={n}>
-                      {i > 0 && pagine[i] - pagine[i - 1] > 1 && (
-                        <span className="cp-pag-dots">...</span>
-                      )}
-                      <button
-                        className={`cp-pag-btn cp-pag-num ${pag === n ? 'active' : ''}`}
-                        onClick={() => goPage(n)}
-                      >
-                        {n}
-                      </button>
+                      {i > 0 && pagine[i] - pagine[i - 1] > 1 && <span className="g-pag-dots">...</span>}
+                      <button className={`g-pag-btn ${pag === n ? 'active' : ''}`}
+                        onClick={() => goPage(n)}>{n}</button>
                     </React.Fragment>
                   ))}
-
-                  <button
-                    className={`cp-pag-btn ${pag === totalPag ? 'disabled' : ''}`}
-                    onClick={() => goPage(pag + 1)}
-                    disabled={pag === totalPag}
-                  >
+                  <button className={`g-pag-btn ${pag === totalPag ? 'disabled' : ''}`}
+                    onClick={() => goPage(pag + 1)} disabled={pag === totalPag}>
                     <ChevronRight size={15} />
                   </button>
                 </div>
               </div>
             )}
           </div>
-
         </div>
       </div>
     </div>
