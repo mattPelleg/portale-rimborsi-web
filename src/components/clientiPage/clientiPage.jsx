@@ -1,27 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import authService from '../../services/authService';
+import { useNavigate } from 'react-router-dom';
 import clientiService from '../../services/clientiService.js';
+import Sidebar from '../sidebar/Sidebar';
 import {
-  LayoutDashboard, Users, FileText, ClipboardList,
-  Settings, LogOut, Plane, Search, Bell,
-  User, Eye, Plus, ChevronLeft, ChevronRight, Filter
+  Search, Bell, User, Eye, Plus, ChevronLeft, ChevronRight, Filter, Users
 } from 'lucide-react';
 import './ClientiPage.css';
 
 const PER_PAGINA = 8;
 
-const MENU = [
-  { id: 'dashboard',    label: 'Dashboard',       Icon: LayoutDashboard, path: '/dashboard' },
-  { id: 'clienti',      label: 'Clienti',         Icon: Users,           path: '/clienti' },
-  { id: 'moduli',       label: 'Moduli Rimborso', Icon: FileText,        path: '/moduli' },
-  { id: 'pratiche',     label: 'Pratiche',        Icon: ClipboardList,   path: '/pratiche' },
-  { id: 'impostazioni', label: 'Impostazioni',    Icon: Settings,        path: '/impostazioni' },
-];
-
 const ClientiPage = () => {
-  const navigate  = useNavigate();
-  const location  = useLocation();
+  const navigate = useNavigate();
 
   const [clienti, setClienti]         = useState([]);
   const [loading, setLoading]         = useState(true);
@@ -36,7 +25,7 @@ const ClientiPage = () => {
       try {
         const lista = await clientiService.visualizzaClienti();
         setClienti(lista);
-      } catch (e) {
+      } catch {
         setErrore('Errore nel caricamento dei clienti.');
       } finally {
         setLoading(false);
@@ -47,25 +36,22 @@ const ClientiPage = () => {
 
   const filtrati = clienti.filter(c => {
     const s = search.toLowerCase();
-    const matchSearch =
-      !s ||
+    const matchSearch = !s ||
       c.nome.toLowerCase().includes(s) ||
       c.cognome.toLowerCase().includes(s) ||
       c.codiceFiscale.toLowerCase().includes(s);
     const tipo  = c.tipoCliente?.codice ?? '';
     const stato = c.dataFine ? 'chiuso' : 'attivo';
-    return (
-      matchSearch &&
+    return matchSearch &&
       (filtroTipo  === 'tutti' || tipo  === filtroTipo) &&
-      (filtroStato === 'tutti' || stato === filtroStato)
-    );
+      (filtroStato === 'tutti' || stato === filtroStato);
   });
 
   const totalPag = Math.max(1, Math.ceil(filtrati.length / PER_PAGINA));
   const pag      = Math.min(pagina, totalPag);
   const slice    = filtrati.slice((pag - 1) * PER_PAGINA, pag * PER_PAGINA);
 
-  const reset = () => { setSearch(''); setFiltroTipo('tutti'); setFiltroStato('tutti'); setPagina(1); };
+  const reset  = () => { setSearch(''); setFiltroTipo('tutti'); setFiltroStato('tutti'); setPagina(1); };
   const goPage = (n) => { if (n >= 1 && n <= totalPag) setPagina(n); };
   const genPagine = () => {
     if (totalPag <= 5) return Array.from({ length: totalPag }, (_, i) => i + 1);
@@ -73,34 +59,10 @@ const ClientiPage = () => {
     return [...set].filter(n => n >= 1 && n <= totalPag).sort((a, b) => a - b);
   };
   const pagine = genPagine();
-  const handleLogout = async () => { await authService.logout(); navigate('/login'); };
 
   return (
     <div className="g-root">
-      <aside className="g-sidebar">
-        <div className="g-sidebar-head">
-          <div className="g-logo">
-            <div className="g-logo-icon"><Plane size={20} /></div>
-            <span className="g-logo-txt">EasyFlyRefund</span>
-          </div>
-        </div>
-        <nav className="g-sidebar-nav">
-          {MENU.map(m => (
-            <button key={m.id}
-              className={`g-nav-item ${location.pathname === m.path ? 'active' : ''}`}
-              onClick={() => navigate(m.path)}>
-              <m.Icon size={20} className="g-nav-ico" />
-              <span className="g-nav-lbl">{m.label}</span>
-            </button>
-          ))}
-        </nav>
-        <div className="g-sidebar-foot">
-          <button className="g-logout" onClick={handleLogout}>
-            <LogOut size={18} /><span>Logout</span>
-          </button>
-        </div>
-      </aside>
-
+      <Sidebar />
       <div className="g-main">
         <header className="g-topbar">
           <div className="g-topbar-left">
@@ -126,7 +88,8 @@ const ClientiPage = () => {
             <div>
               <h2 className="g-page-title">Lista Clienti</h2>
               <span className="g-page-count">
-                {loading ? 'Caricamento...' : `${filtrati.length} ${filtrati.length !== 1 ? 'clienti trovati' : 'cliente trovato'}`}
+                {loading ? 'Caricamento...'
+                  : `${filtrati.length} ${filtrati.length !== 1 ? 'clienti trovati' : 'cliente trovato'}`}
               </span>
             </div>
             <button className="g-btn-primary" onClick={() => navigate('/clienti/nuovo')}>

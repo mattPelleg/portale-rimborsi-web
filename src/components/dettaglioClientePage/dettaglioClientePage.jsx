@@ -1,26 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import authService from '../../services/authService';
+import { useNavigate, useParams } from 'react-router-dom';
 import clientiService from '../../services/clientiService';
+import Sidebar from '../sidebar/Sidebar';
 import {
-  LayoutDashboard, Users, FileText, ClipboardList,
-  Settings, LogOut, Plane, Bell, User,
-  ArrowLeft, Eye, XCircle, CheckCircle2,
-  Calendar, Clock
+  Bell, User, Users, ArrowLeft, Eye, XCircle, CheckCircle2, Calendar, Clock, FileText
 } from 'lucide-react';
 import './DettaglioClientePage.css';
 
-const MENU = [
-  { id: 'dashboard',    label: 'Dashboard',       Icon: LayoutDashboard, path: '/dashboard' },
-  { id: 'clienti',      label: 'Clienti',         Icon: Users,           path: '/clienti' },
-  { id: 'moduli',       label: 'Moduli Rimborso', Icon: FileText,        path: '/moduli' },
-  { id: 'pratiche',     label: 'Pratiche',        Icon: ClipboardList,   path: '/pratiche' },
-  { id: 'impostazioni', label: 'Impostazioni',    Icon: Settings,        path: '/impostazioni' },
-];
-
 const DettaglioClientePage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { id }   = useParams();
 
   const [cliente, setCliente] = useState(null);
@@ -48,8 +36,6 @@ const DettaglioClientePage = () => {
     caricaCliente();
   }, [id]);
 
-  const handleLogout = async () => { await authService.logout(); navigate('/login'); };
-
   const getStatoBadgeClass = (codice) => {
     const map = { IN_ATTESA: 'attesa', APPROVATO: 'approvato', RESPINTO: 'respinto' };
     return map[codice] ?? '';
@@ -63,30 +49,7 @@ const DettaglioClientePage = () => {
 
   return (
     <div className="g-root">
-      <aside className="g-sidebar">
-        <div className="g-sidebar-head">
-          <div className="g-logo">
-            <div className="g-logo-icon"><Plane size={20} /></div>
-            <span className="g-logo-txt">EasyFlyRefund</span>
-          </div>
-        </div>
-        <nav className="g-sidebar-nav">
-          {MENU.map(m => (
-            <button key={m.id}
-              className={`g-nav-item ${location.pathname.startsWith(m.path) && m.path !== '/' ? 'active' : ''}`}
-              onClick={() => navigate(m.path)}>
-              <m.Icon size={20} className="g-nav-ico" />
-              <span className="g-nav-lbl">{m.label}</span>
-            </button>
-          ))}
-        </nav>
-        <div className="g-sidebar-foot">
-          <button className="g-logout" onClick={handleLogout}>
-            <LogOut size={18} /><span>Logout</span>
-          </button>
-        </div>
-      </aside>
-
+      <Sidebar />
       <div className="g-main">
         <header className="g-topbar">
           <div className="g-topbar-left">

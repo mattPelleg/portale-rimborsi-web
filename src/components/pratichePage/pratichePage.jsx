@@ -1,27 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import authService from '../../services/authService';
+import { useNavigate } from 'react-router-dom';
 import praticheService from '../../services/praticheService';
+import Sidebar from '../sidebar/Sidebar';
 import {
-  LayoutDashboard, Users, FileText, ClipboardList,
-  Settings, LogOut, Plane, Search, Bell,
-  User, Eye, ChevronLeft, ChevronRight, Filter
+  Search, Bell, User, Eye, ChevronLeft, ChevronRight, Filter, ClipboardList
 } from 'lucide-react';
 import './PratichePage.css';
 
 const PER_PAGINA = 8;
 
-const MENU = [
-  { id: 'dashboard',    label: 'Dashboard',       Icon: LayoutDashboard, path: '/dashboard' },
-  { id: 'clienti',      label: 'Clienti',         Icon: Users,           path: '/clienti' },
-  { id: 'moduli',       label: 'Moduli Rimborso', Icon: FileText,        path: '/moduli' },
-  { id: 'pratiche',     label: 'Pratiche',        Icon: ClipboardList,   path: '/pratiche' },
-  { id: 'impostazioni', label: 'Impostazioni',    Icon: Settings,        path: '/impostazioni' },
-];
-
 const PratichePage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [pratiche, setPratiche]       = useState([]);
   const [loading, setLoading]         = useState(true);
@@ -71,7 +60,6 @@ const PratichePage = () => {
     return [...set].filter(n => n >= 1 && n <= totalPag).sort((a, b) => a - b);
   };
   const pagine = genPagine();
-  const handleLogout = async () => { await authService.logout(); navigate('/login'); };
 
   const getStatoClass = (codice) => {
     const map = { IN_ATTESA: 'attesa', IN_CORSO: 'corso', COMPLETATA: 'completata', CHIUSA: 'chiusa' };
@@ -86,30 +74,7 @@ const PratichePage = () => {
 
   return (
     <div className="g-root">
-      <aside className="g-sidebar">
-        <div className="g-sidebar-head">
-          <div className="g-logo">
-            <div className="g-logo-icon"><Plane size={20} /></div>
-            <span className="g-logo-txt">EasyFlyRefund</span>
-          </div>
-        </div>
-        <nav className="g-sidebar-nav">
-          {MENU.map(m => (
-            <button key={m.id}
-              className={`g-nav-item ${location.pathname.startsWith(m.path) && m.path !== '/' ? 'active' : ''}`}
-              onClick={() => navigate(m.path)}>
-              <m.Icon size={20} className="g-nav-ico" />
-              <span className="g-nav-lbl">{m.label}</span>
-            </button>
-          ))}
-        </nav>
-        <div className="g-sidebar-foot">
-          <button className="g-logout" onClick={handleLogout}>
-            <LogOut size={18} /><span>Logout</span>
-          </button>
-        </div>
-      </aside>
-
+      <Sidebar />
       <div className="g-main">
         <header className="g-topbar">
           <div className="g-topbar-left">

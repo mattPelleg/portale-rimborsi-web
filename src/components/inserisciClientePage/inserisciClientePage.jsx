@@ -1,27 +1,16 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import authService from '../../services/authService';
+import { useNavigate} from 'react-router-dom';
 import clientiService from '../../services/clientiService';
+import Sidebar from '../sidebar/Sidebar';
 import {
-  LayoutDashboard, Users, FileText, ClipboardList,
-  Settings, LogOut, Plane, Bell, User,
-  ArrowLeft, Save, CheckCircle2, XCircle
+  Bell, User, ArrowLeft, Save, CheckCircle2, XCircle
 } from 'lucide-react';
 import './InserisciClientePage.css';
-
-const MENU = [
-  { id: 'dashboard',    label: 'Dashboard',       Icon: LayoutDashboard, path: '/dashboard' },
-  { id: 'clienti',      label: 'Clienti',         Icon: Users,           path: '/clienti' },
-  { id: 'moduli',       label: 'Moduli Rimborso', Icon: FileText,        path: '/moduli' },
-  { id: 'pratiche',     label: 'Pratiche',        Icon: ClipboardList,   path: '/pratiche' },
-  { id: 'impostazioni', label: 'Impostazioni',    Icon: Settings,        path: '/impostazioni' },
-];
 
 const INITIAL_FORM = { codiceFiscale: '', nome: '', cognome: '', tipoCliente: '', nomeAgenzia: '' };
 
 const InserisciClientePage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [form, setForm]         = useState(INITIAL_FORM);
   const [errors, setErrors]     = useState({});
@@ -72,34 +61,10 @@ const InserisciClientePage = () => {
   };
 
   const handleAnnulla = () => navigate('/clienti');
-  const handleLogout  = async () => { await authService.logout(); navigate('/login'); };
 
   return (
     <div className="g-root">
-      <aside className="g-sidebar">
-        <div className="g-sidebar-head">
-          <div className="g-logo">
-            <div className="g-logo-icon"><Plane size={20} /></div>
-            <span className="g-logo-txt">EasyFlyRefund</span>
-          </div>
-        </div>
-        <nav className="g-sidebar-nav">
-          {MENU.map(m => (
-            <button key={m.id}
-              className={`g-nav-item ${location.pathname.startsWith(m.path) && m.path !== '/' ? 'active' : ''}`}
-              onClick={() => navigate(m.path)}>
-              <m.Icon size={20} className="g-nav-ico" />
-              <span className="g-nav-lbl">{m.label}</span>
-            </button>
-          ))}
-        </nav>
-        <div className="g-sidebar-foot">
-          <button className="g-logout" onClick={handleLogout}>
-            <LogOut size={18} /><span>Logout</span>
-          </button>
-        </div>
-      </aside>
-
+      <Sidebar />
       <div className="g-main">
         <header className="g-topbar">
           <div className="g-topbar-left">
