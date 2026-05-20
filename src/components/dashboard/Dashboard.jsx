@@ -1,30 +1,15 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import authService from '../../services/authService';
+import { useNavigate } from 'react-router-dom';
+import Sidebar from '../sidebar/Sidebar';
 import {
-  LayoutDashboard,
-  Users,
-  FileText,
-  ClipboardList,
-  Settings,
-  LogOut,
-  Plane,
-  TrendingUp,
-  Clock,
-  CheckCircle2,
-  Plus,
-  Search,
-  Bell,
-  ChevronRight,
-  Activity,
-  User,
-  Eye
+  Users, FileText, ClipboardList, TrendingUp, Clock,
+  CheckCircle2, Plus, Search, Bell, ChevronRight,
+  Activity, User, Eye
 } from 'lucide-react';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const location = useLocation();
 
   // Dati fittizi per l'esempio
   const stats = [
@@ -51,13 +36,6 @@ const Dashboard = () => {
     { id: 5, tipo: 'nuovo-cliente', descrizione: 'Nuovo cliente registrato: Paolo Blu', ora: '2 giorni fa', icona: <User size={16} />, colore: 'attivita-blue' }
   ];
 
-  const menuItems = [
-    { id: 'dashboard',    label: 'Dashboard',       icon: <LayoutDashboard size={20} />, path: '/dashboard' },
-    { id: 'clienti',      label: 'Clienti',         icon: <Users size={20} />,           path: '/clienti' },
-    { id: 'moduli',       label: 'Moduli Rimborso', icon: <FileText size={20} />,        path: '/moduli' },
-    { id: 'pratiche',     label: 'Pratiche',        icon: <ClipboardList size={20} />,   path: '/pratiche' },
-  ];
-
   const getStatoClass = (stato) => {
     const classi = {
       'in-attesa': 'stato-attesa',
@@ -78,50 +56,10 @@ const Dashboard = () => {
     return labels[stato] || stato;
   };
 
-  const handleLogout = async () => {
-  await authService.logout();
-  navigate('/login');
-};
-
   return (
     <div className="dashboard-container">
-
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <div className="sidebar-logo">
-            <div className="sidebar-logo-icon">
-              <Plane size={20} />
-            </div>
-            <span className="sidebar-logo-text">EasyFlyRefund</span>
-          </div>
-        </div>
-
-        <nav className="sidebar-nav">
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              className={`sidebar-nav-item ${location.pathname === item.path ? 'active' : ''}`}
-              onClick={() => navigate(item.path)}
-            >
-              <span className="sidebar-nav-icon">{item.icon}</span>
-              <span className="sidebar-nav-label">{item.label}</span>
-            </button>
-          ))}
-        </nav>
-
-        <div className="sidebar-footer">
-          <button className="sidebar-logout-btn" onClick={handleLogout}>
-            <LogOut size={18} />
-            <span>Logout</span>
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Content */}
+      <Sidebar />
       <div className="dashboard-main">
-
-        {/* Top Bar */}
         <header className="topbar">
           <div className="topbar-left">
             <h1 className="topbar-title">Dashboard</h1>
@@ -160,7 +98,7 @@ const Dashboard = () => {
           </button>
           <button className="quick-action-btn quick-action-secondary">
             <Plus size={18} />
-            Nova Pratica
+            Nuova Pratica
           </button>
         </div>
 
