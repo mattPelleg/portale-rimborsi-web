@@ -121,7 +121,7 @@ const Homepage = () => {
             </p>
           </div>
           
-          <div className="stats-card">
+          {/* <div className="stats-card">
             <div className="stats-grid">
               <div className="stat-item">
                 <div className="stat-number stat-blue">98%</div>
@@ -136,7 +136,7 @@ const Homepage = () => {
                 <div className="stat-label">Casi risolti</div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </section>
 

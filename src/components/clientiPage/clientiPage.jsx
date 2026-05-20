@@ -126,7 +126,7 @@ const ClientiPage = () => {
             <div className="g-tbl">
               <div className="g-tbl-hdr cp-tbl-hdr">
                 <span>ID</span><span>Nome</span><span>Cognome</span><span>Tipo</span>
-                <span>Agenzia</span><span>Pratiche</span><span>Stato</span>
+                <span>Agenzia</span><span>Stato</span>
                 <span>Registrazione</span><span />
               </div>
 
@@ -147,7 +147,6 @@ const ClientiPage = () => {
                         {tipo === 'AGENZIA' ? 'Agenzia' : 'Privato'}
                       </span>
                       <span className="cp-cell-agenzia">{c.nomeAgenzia || '—'}</span>
-                      <span className="cp-cell-pratiche">—</span>
                       <span className={`g-badge ${stato}`}>
                         {stato === 'chiuso' ? 'Chiuso' : 'Attivo'}
                       </span>
