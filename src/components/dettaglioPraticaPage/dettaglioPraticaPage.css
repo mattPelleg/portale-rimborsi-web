@@ -150,3 +150,17 @@
   .dp-tbl-hdr span:nth-child(3), .dp-tbl-row .dp-cell-tratta,
   .dp-tbl-hdr span:nth-child(5), .dp-tbl-row .dp-cell-disservizio { display: none; }
 }
+
+.dp-salva-dati-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.dp-btn-salva-stato {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}

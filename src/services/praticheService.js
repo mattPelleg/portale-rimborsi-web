@@ -25,7 +25,7 @@ class PraticheService {
     );
     return response.data;
   }
-  
+
   async aggiornaStatoPratica(praticaId, statoPratica) {
     const response = await axios.post(
       `${API_BASE_URL}/pratica-service/aggiorna-stato-pratica`,
@@ -35,7 +35,15 @@ class PraticheService {
     return response.data;
   }
 
-}
+  async aggiornaDatiPratica(payload) {
+    const response = await axios.post(
+      `${API_BASE_URL}/pratica-service/aggiorna-dati-pratica`,
+      payload,
+      { headers: this.getAuthHeader() }
+    );
+    return response.data;
+  }
 
+}
 
 export default new PraticheService();

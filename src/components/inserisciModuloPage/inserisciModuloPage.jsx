@@ -182,7 +182,7 @@ const InserisciModuloPage = () => {
                       <Search size={15} className="im-search-ico" />
                       <input name="cognomeRicerca"
                         className={`g-input im-input-search ${errors.cognomeRicerca ? 'g-input-err' : ''}`}
-                        placeholder="Es. Rossi" value={form.cognomeRicerca}
+                        placeholder="   Es. Rossi" value={form.cognomeRicerca}
                         onChange={handleChange} disabled={isLoading} autoComplete="off" />
                       {cercandoCliente && <div className="im-search-spinner" />}
                     </div>

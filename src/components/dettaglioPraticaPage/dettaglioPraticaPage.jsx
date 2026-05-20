@@ -5,7 +5,7 @@ import tipologicaService from '../../services/tipologicaService';
 import Sidebar from '../sidebar/Sidebar';
 import {
   Bell, User, Users, ArrowLeft, Eye, XCircle, CheckCircle2,
-  Calendar, Clock, Euro, AlignLeft, FileText
+  Calendar, Clock, Euro, AlignLeft, FileText, Save
 } from 'lucide-react';
 import './DettaglioPraticaPage.css';
 
@@ -23,6 +23,18 @@ const DettaglioPraticaPage = () => {
   const [esitoStato, setEsitoStato]       = useState(null);
   const [msgEsitoStato, setMsgEsitoStato] = useState('');
 
+  // state form aggiorna dati
+  const [datiForm, setDatiForm]           = useState({
+    importoRimborso:    '',
+    importoCompensato:  '',
+    nota:               '',
+    dataInvioMail:      '',
+    dataUdienza:        '',
+  });
+  const [loadingDati, setLoadingDati]     = useState(false);
+  const [esitoData, setEsitoData]         = useState(null);
+  const [msgEsitoData, setMsgEsitoData]   = useState('');
+
   useEffect(() => {
     const carica = async () => {
       try {
@@ -32,8 +44,17 @@ const DettaglioPraticaPage = () => {
         ]);
         const codicePratica = rispostaPratica?.listaEsiti?.[0]?.codice;
         if (codicePratica === 100 && rispostaPratica.pratica) {
-          setPratica(rispostaPratica.pratica);
+          const p = rispostaPratica.pratica;
+          setPratica(p);
           setModuli(rispostaPratica.elencoModuliPratica ?? []);
+          // inizializza il form con i valori esistenti
+          setDatiForm({
+            importoRimborso:   p.importoRimborso   ?? '',
+            importoCompensato: p.importoCompensato ?? '',
+            nota:              p.nota              ?? '',
+            dataInvioMail:     p.dataInvioMail     ?? '',
+            dataUdienza:       p.dataUdienza       ?? '',
+          });
         } else {
           setErrore(rispostaPratica?.listaEsiti?.[0]?.descrizione ?? 'Pratica non trovata.');
         }
@@ -75,6 +96,42 @@ const DettaglioPraticaPage = () => {
     } finally { setLoadingStato(false); }
   };
 
+  const handleAggiornaDati = async () => {
+    setLoadingDati(true); setEsitoData(null);
+    try {
+      const payload = {
+        aggiornaDatiPratica: {
+          idPratica:          pratica.id,
+          importoRimborso:    datiForm.importoRimborso   !== '' ? datiForm.importoRimborso   : null,
+          importoCompensato:  datiForm.importoCompensato !== '' ? datiForm.importoCompensato : null,
+          nota:               datiForm.nota              !== '' ? datiForm.nota              : null,
+          dataInvioMail:      datiForm.dataInvioMail     !== '' ? datiForm.dataInvioMail     : null,
+          dataUdienza:        datiForm.dataUdienza       !== '' ? datiForm.dataUdienza       : null,
+        }
+      };
+      const risposta     = await praticheService.aggiornaDatiPratica(payload);
+      const esitoBackend = risposta?.listaEsiti?.[0];
+      if (esitoBackend?.codice === 100) {
+        setEsitoData('ok');
+        setMsgEsitoData('Dati aggiornati con successo.');
+        setPratica(prev => ({
+          ...prev,
+          importoRimborso:   datiForm.importoRimborso   || null,
+          importoCompensato: datiForm.importoCompensato || null,
+          nota:              datiForm.nota              || null,
+          dataInvioMail:     datiForm.dataInvioMail     || null,
+          dataUdienza:       datiForm.dataUdienza       || null,
+        }));
+      } else {
+        setEsitoData('errore');
+        setMsgEsitoData(esitoBackend?.descrizione ?? "Errore durante il salvataggio.");
+      }
+    } catch {
+      setEsitoData('errore');
+      setMsgEsitoData("Errore durante il salvataggio dei dati.");
+    } finally { setLoadingDati(false); }
+  };
+
   const getStatoClass = (codice) => {
     const map = { IN_ATTESA: 'attesa', IN_CORSO: 'corso', COMPLETATA: 'completata', CHIUSA: 'chiusa' };
     return map[codice] ?? '';
@@ -91,10 +148,6 @@ const DettaglioPraticaPage = () => {
     const map = { IN_ATTESA: 'In Attesa', APPROVATO: 'Approvato', RESPINTO: 'Respinto' };
     return map[codice] ?? codice;
   };
-  const formatImporto = (importo) =>
-    importo != null
-      ? `€ ${Number(importo).toLocaleString('it-IT', { minimumFractionDigits: 2 })}`
-      : '—';
 
   return (
     <div className="g-root">
@@ -179,6 +232,7 @@ const DettaglioPraticaPage = () => {
               {/* GRID DATI */}
               <div className="g-grid">
 
+                {/* CLIENTE — sola lettura */}
                 <div className="g-card">
                   <div className="g-card-title"><Users size={16} /><span>Cliente</span></div>
                   <div className="g-card-body">
@@ -200,20 +254,40 @@ const DettaglioPraticaPage = () => {
                   </div>
                 </div>
 
+                {/* DATI ECONOMICI — editabile */}
                 <div className="g-card">
                   <div className="g-card-title"><Euro size={16} /><span>Dati Economici</span></div>
                   <div className="g-card-body">
-                    <div className="g-field">
-                      <span className="g-field-label">Importo Rimborso</span>
-                      <span className="g-field-value dp-importo">{formatImporto(pratica.importoRimborso)}</span>
+                    <div className="g-field-form">
+                      <label className="g-label">Importo Rimborso</label>
+                      <input
+                        type="number"
+                        className="g-input"
+                        placeholder="0.00"
+                        value={datiForm.importoRimborso}
+                        onChange={e => setDatiForm(prev => ({ ...prev, importoRimborso: e.target.value }))}
+                        disabled={loadingDati}
+                        min="0"
+                        step="0.01"
+                      />
                     </div>
-                    <div className="g-field">
-                      <span className="g-field-label">Importo Compensato</span>
-                      <span className="g-field-value dp-importo">{formatImporto(pratica.importoCompensato)}</span>
+                    <div className="g-field-form">
+                      <label className="g-label">Importo Compensato</label>
+                      <input
+                        type="number"
+                        className="g-input"
+                        placeholder="0.00"
+                        value={datiForm.importoCompensato}
+                        onChange={e => setDatiForm(prev => ({ ...prev, importoCompensato: e.target.value }))}
+                        disabled={loadingDati}
+                        min="0"
+                        step="0.01"
+                      />
                     </div>
                   </div>
                 </div>
 
+                {/* DATE — sola lettura */}
                 <div className="g-card">
                   <div className="g-card-title"><Calendar size={16} /><span>Date</span></div>
                   <div className="g-card-body">
@@ -238,14 +312,68 @@ const DettaglioPraticaPage = () => {
                   </div>
                 </div>
 
-                {pratica.nota && (
-                  <div className="g-card">
-                    <div className="g-card-title"><AlignLeft size={16} /><span>Note</span></div>
-                    <div className="g-card-body">
-                      <p className="dp-nota">{pratica.nota}</p>
+                {/* DATE PROCEDIMENTO — editabile */}
+                <div className="g-card">
+                  <div className="g-card-title"><Calendar size={16} /><span>Date Procedimento</span></div>
+                  <div className="g-card-body">
+                    <div className="g-field-form">
+                      <label className="g-label">Data Invio Mail Compagnia</label>
+                      <input
+                        type="date"
+                        className="g-input"
+                        value={datiForm.dataInvioMail}
+                        onChange={e => setDatiForm(prev => ({ ...prev, dataInvioMail: e.target.value }))}
+                        disabled={loadingDati}
+                      />
+                    </div>
+                    <div className="g-field-form">
+                      <label className="g-label">Data Udienza</label>
+                      <input
+                        type="date"
+                        className="g-input"
+                        value={datiForm.dataUdienza}
+                        onChange={e => setDatiForm(prev => ({ ...prev, dataUdienza: e.target.value }))}
+                        disabled={loadingDati}
+                      />
                     </div>
                   </div>
+                </div>
+
+                {/* NOTE — editabile, occupa tutta la riga */}
+                <div className="g-card g-card-full">
+                  <div className="g-card-title"><AlignLeft size={16} /><span>Note</span></div>
+                  <div className="g-card-body">
+                    <textarea
+                      className="g-textarea"
+                      placeholder="Inserisci una nota sulla pratica..."
+                      value={datiForm.nota}
+                      onChange={e => setDatiForm(prev => ({ ...prev, nota: e.target.value }))}
+                      disabled={loadingDati}
+                      rows={3}
+                    />
+                  </div>
+                </div>
+
+              </div>
+
+              {/* BOTTONE SALVA DATI + BANNER ESITO */}
+              <div className="dp-salva-dati-row">
+                {esitoData === 'ok' && (
+                  <div className="dp-banner dp-banner-ok">
+                    <CheckCircle2 size={16} /><span>{msgEsitoData}</span>
+                  </div>
                 )}
+                {esitoData === 'errore' && (
+                  <div className="dp-banner dp-banner-err">
+                    <XCircle size={16} /><span>{msgEsitoData}</span>
+                  </div>
+                )}
+                <button className="dp-btn-salva-stato" onClick={handleAggiornaDati} disabled={loadingDati}>
+                  {loadingDati
+                    ? 'Salvataggio...'
+                    : <><Save size={15} /><span>Salva modifiche</span></>
+                  }
+                </button>
               </div>
 
               {/* TABELLA MODULI */}
