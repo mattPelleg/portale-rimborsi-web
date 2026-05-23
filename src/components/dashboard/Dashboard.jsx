@@ -1,59 +1,91 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../sidebar/Sidebar';
 import {
-  Users, FileText, ClipboardList, TrendingUp, Clock,
+  Users, FileText, ClipboardList, Clock,
   CheckCircle2, Plus, Search, Bell, ChevronRight,
   Activity, User, Eye
 } from 'lucide-react';
+import dashboardService from '../../services/dashboardService';
+import praticheService from '../../services/praticheService';
+import moduliService from '../../services/moduliService';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [summary, setSummary] = useState(null);
+  const [pratiche, setPratiche] = useState([]);
+  const [moduli, setModuli] = useState([]);
+  const [loadingSummary, setLoadingSummary] = useState(true);
+  const [loadingPratiche, setLoadingPratiche] = useState(true);
+  const [loadingModuli, setLoadingModuli] = useState(true);
 
-  // Dati fittizi per l'esempio
-  const stats = [
-    { id: 'clienti', label: 'Clienti Totali', value: '1.248', icon: <Users size={24} />, trend: '+12%', trendUp: true, color: 'stat-blue' },
-    { id: 'pratiche', label: 'Pratiche in Corso', value: '84', icon: <ClipboardList size={24} />, trend: '+5%', trendUp: true, color: 'stat-indigo' },
-    { id: 'completate', label: 'Pratiche Completate', value: '956', icon: <CheckCircle2 size={24} />, trend: '+8%', trendUp: true, color: 'stat-green' },
-    { id: 'attesa', label: 'Moduli in Attesa', value: '23', icon: <Clock size={24} />, trend: '-3%', trendUp: false, color: 'stat-orange' }
-  ];
+  useEffect(() => {
+    caricaDati();
+  }, []);
 
-  const pratiche = [
-    { id: 'PR-2025-001', cliente: 'Mario Rossi', tipo: 'Ritardo Aereo', stato: 'in-corso', data: '28 Gen 2025', importo: '€350' },
-    { id: 'PR-2025-002', cliente: 'Giulia Bianchi', tipo: 'Volo Cancellato', stato: 'in-attesa', data: '27 Gen 2025', importo: '€600' },
-    { id: 'PR-2025-003', cliente: 'Luca Verdi', tipo: 'Bagaglio Smarrito', stato: 'completata', data: '25 Gen 2025', importo: '€1.200' },
-    { id: 'PR-2025-004', cliente: 'Sara Neri', tipo: 'Overbooking', stato: 'in-corso', data: '24 Gen 2025', importo: '€250' },
-    { id: 'PR-2025-005', cliente: 'Paolo Blu', tipo: 'Perdita Coincidenza', stato: 'chiusa', data: '22 Gen 2025', importo: '€400' },
-    { id: 'PR-2025-006', cliente: 'Anna Rosa', tipo: 'Declassamento', stato: 'in-attesa', data: '20 Gen 2025', importo: '€180' }
-  ];
+  const caricaDati = async () => {
+    try {
+      setLoadingSummary(true);
+      setLoadingPratiche(true);
+      setLoadingModuli(true);
 
-  const attivitaRecenti = [
-    { id: 1, tipo: 'nuovo-cliente', descrizione: 'Nuovo cliente registrato: Mario Rossi', ora: '2 ore fa', icona: <User size={16} />, colore: 'attivita-blue' },
-    { id: 2, tipo: 'stato-aggiornato', descrizione: 'Pratica PR-2025-003 completata', ora: '4 ore fa', icona: <CheckCircle2 size={16} />, colore: 'attivita-green' },
-    { id: 3, tipo: 'nuovo-modulo', descrizione: 'Nuovo modulo rimborso: Giulia Bianchi', ora: '6 ore fa', icona: <FileText size={16} />, colore: 'attivita-indigo' },
-    { id: 4, tipo: 'stato-aggiornato', descrizione: 'Pratica PR-2025-004 in corso', ora: '1 giorno fa', icona: <Activity size={16} />, colore: 'attivita-orange' },
-    { id: 5, tipo: 'nuovo-cliente', descrizione: 'Nuovo cliente registrato: Paolo Blu', ora: '2 giorni fa', icona: <User size={16} />, colore: 'attivita-blue' }
-  ];
+      const [resSummary, resPratiche, resModuli] = await Promise.all([
+        dashboardService.getSummary(),
+        praticheService.visualizzaPraticheRecenti(),
+        moduliService.visualizzaModuliRecenti()
+      ]);
+
+      console.log('resSummary:', resSummary);
+    console.log('resPratiche:', resPratiche);
+    console.log('resModuli:', resModuli);
+
+      setSummary(resSummary);
+      setPratiche(resPratiche.listaPratiche || []);
+      setModuli(resModuli.listaModuli || []);
+    } catch (error) {
+      console.error('Errore caricamento dashboard:', error);
+    } finally {
+      setLoadingSummary(false);
+      setLoadingPratiche(false);
+      setLoadingModuli(false);
+    }
+  };
+
+  const stats = summary ? [
+    { id: 'clienti', label: 'Clienti Totali', value: summary.numeroClienti?.toString() || '0', icon: <Users size={24} />, color: 'stat-blue' },
+    { id: 'moduli', label: 'Moduli Totali', value: summary.numeroModuli?.toString() || '0', icon: <FileText size={24} />, color: 'stat-indigo' },
+    { id: 'pratiche', label: 'Pratiche Totali', value: summary.numeroPratiche?.toString() || '0', icon: <ClipboardList size={24} />, color: 'stat-green' },
+    { id: 'rimborso', label: 'Rimborsi Totali', value: `€${(summary.importoRimborso || 0).toFixed(2)}`, icon: <CheckCircle2 size={24} />, color: 'stat-orange' }
+  ] : [];
 
   const getStatoClass = (stato) => {
     const classi = {
-      'in-attesa': 'stato-attesa',
-      'in-corso': 'stato-corso',
-      'completata': 'stato-completata',
-      'chiusa': 'stato-chiusa'
+      'IN_ATTESA': 'stato-attesa',
+      'APPROVATO': 'stato-approvato',
+      'RESPINTO': 'stato-respinto',
+      'IN_CORSO': 'stato-corso',
+      'COMPLETATA': 'stato-completata',
+      'CHIUSA': 'stato-chiusa'
     };
     return classi[stato] || '';
   };
 
   const getStatoLabel = (stato) => {
     const labels = {
-      'in-attesa': 'In Attesa',
-      'in-corso': 'In Corso',
-      'completata': 'Completata',
-      'chiusa': 'Chiusa'
+      'IN_ATTESA': 'In Attesa',
+      'APPROVATO': 'Approvato',
+      'RESPINTO': 'Respinto',
+      'IN_CORSO': 'In Corso',
+      'COMPLETATA': 'Completata',
+      'CHIUSA': 'Chiusa'
     };
     return labels[stato] || stato;
+  };
+
+  const formattaData = (data) => {
+    if (!data) return '-';
+    return new Date(data).toLocaleDateString('it-IT');
   };
 
   return (
@@ -88,19 +120,15 @@ const Dashboard = () => {
 
           {/* Quick Actions */}
           <div className="quick-actions">
-          <button className="quick-action-btn quick-action-primary" onClick={() => navigate('/clienti/nuovo')}>
-            <Plus size={18} />
-            Nuovo Cliente
-          </button>
-          <button className="quick-action-btn quick-action-secondary" onClick={() => navigate('/moduli/nuovo')}>
-            <Plus size={18} />
-            Nuovo Modulo
-          </button>
-          <button className="quick-action-btn quick-action-secondary">
-            <Plus size={18} />
-            Nuova Pratica
-          </button>
-        </div>
+            <button className="quick-action-btn quick-action-primary" onClick={() => navigate('/clienti/nuovo')}>
+              <Plus size={18} />
+              Nuovo Cliente
+            </button>
+            <button className="quick-action-btn quick-action-secondary" onClick={() => navigate('/moduli/nuovo')}>
+              <Plus size={18} />
+              Nuovo Modulo
+            </button>
+          </div>
 
           {/* Stats Cards */}
           <div className="stats-grid">
@@ -108,10 +136,6 @@ const Dashboard = () => {
               <div key={stat.id} className={`stat-card ${stat.color}`}>
                 <div className="stat-card-header">
                   <div className="stat-card-icon">{stat.icon}</div>
-                  <span className={`stat-card-trend ${stat.trendUp ? 'trend-up' : 'trend-down'}`}>
-                    <TrendingUp size={14} />
-                    {stat.trend}
-                  </span>
                 </div>
                 <div className="stat-card-value">{stat.value}</div>
                 <div className="stat-card-label">{stat.label}</div>
@@ -119,14 +143,16 @@ const Dashboard = () => {
             ))}
           </div>
 
-          {/* Pratiche + Attività */}
+          {/* Pratiche Recenti + Moduli Recenti */}
           <div className="content-grid">
 
             {/* Pratiche Recenti */}
             <div className="panel pratiche-panel">
               <div className="panel-header">
                 <h2 className="panel-title">Pratiche Recenti</h2>
-                <button className="panel-action-btn">Vedi tutte <ChevronRight size={14} /></button>
+                <button className="panel-action-btn" onClick={() => navigate('/pratiche')}>
+                  Vedi tutte <ChevronRight size={14} />
+                </button>
               </div>
               <div className="pratiche-table">
                 <div className="pratiche-table-header">
@@ -138,44 +164,89 @@ const Dashboard = () => {
                   <span>Importo</span>
                   <span></span>
                 </div>
-                {pratiche.map((pratica) => (
-                  <div key={pratica.id} className="pratiche-table-row">
-                    <span className="pratica-id">{pratica.id}</span>
-                    <span className="pratica-cliente">{pratica.cliente}</span>
-                    <span className="pratica-tipo">{pratica.tipo}</span>
-                    <span className={`pratica-stato ${getStatoClass(pratica.stato)}`}>
-                      {getStatoLabel(pratica.stato)}
-                    </span>
-                    <span className="pratica-data">{pratica.data}</span>
-                    <span className="pratica-importo">{pratica.importo}</span>
-                    <span className="pratica-azioni">
-                      <button className="pratica-btn-dettaglio" title="Vedi dettaglio">
-                        <Eye size={16} />
-                      </button>
-                    </span>
+                {loadingPratiche ? (
+                  <div style={{ padding: '2rem', textAlign: 'center', color: '#999' }}>
+                    Caricamento...
                   </div>
-                ))}
+                ) : pratiche.length > 0 ? (
+                  pratiche.map((pratica) => {
+                    const statoCodice = pratica.statoPratica?.codice ?? '';
+                    return (
+                      <div key={pratica.id} className="pratiche-table-row">
+                        <span className="pratica-id">{pratica.id}</span>
+                        <span className="pratica-cliente">{pratica.cliente?.cognome} {pratica.cliente?.nome}</span>
+                        <span className="pratica-tipo">{pratica.tipo || '-'}</span>
+                        <span className={`pratica-stato ${getStatoClass(statoCodice)}`}>
+                          {getStatoLabel(statoCodice)}
+                        </span>
+                        <span className="pratica-data">{formattaData(pratica.dataCreazione)}</span>
+                        <span className="pratica-importo">€{(pratica.importoRimborso || 0).toFixed(2)}</span>
+                        <span className="pratica-azioni">
+                          <button 
+                            className="pratica-btn-dettaglio" 
+                            title="Vedi dettaglio"
+                            onClick={() => navigate(`/pratiche/${pratica.id}`)}
+                          >
+                            <Eye size={16} />
+                          </button>
+                        </span>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div style={{ padding: '2rem', textAlign: 'center', color: '#999' }}>
+                    Nessuna pratica recente
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Attività Recente */}
-            <div className="panel attivita-panel">
+            {/* Moduli Recenti */}
+            <div className="panel moduli-panel">
               <div className="panel-header">
-                <h2 className="panel-title">Attività Recente</h2>
-                <button className="panel-action-btn">Tutto il log <ChevronRight size={14} /></button>
+                <h2 className="panel-title">Moduli Recenti</h2>
+                <button className="panel-action-btn" onClick={() => navigate('/moduli')}>
+                  Vedi tutti <ChevronRight size={14} />
+                </button>
               </div>
-              <div className="attivita-list">
-                {attivitaRecenti.map((attivita) => (
-                  <div key={attivita.id} className="attivita-item">
-                    <div className={`attivita-icon ${attivita.colore}`}>
-                      {attivita.icona}
-                    </div>
-                    <div className="attivita-content">
-                      <p className="attivita-descrizione">{attivita.descrizione}</p>
-                      <span className="attivita-ora">{attivita.ora}</span>
-                    </div>
+              <div className="moduli-table">
+                <div className="moduli-table-header">
+                  <span>ID Modulo</span>
+                  <span>Cliente</span>
+                  <span>Stato</span>
+                  <span></span>
+                </div>
+                {loadingModuli ? (
+                  <div style={{ padding: '2rem', textAlign: 'center', color: '#999' }}>
+                    Caricamento...
                   </div>
-                ))}
+                ) : moduli.length > 0 ? (
+                  moduli.map((modulo) => {
+                    const statoCodice = modulo.stato?.codice ?? '';
+                    return (
+                      <div key={modulo.id} className="moduli-table-row">
+                        <span className="modulo-id">{modulo.id}</span>
+                        <span className="modulo-cliente">{modulo.cliente?.cognome} {modulo.cliente?.nome}</span>
+                        <span className={`modulo-stato ${getStatoClass(statoCodice)}`}>
+                          {getStatoLabel(statoCodice)}
+                        </span>
+                        <span className="modulo-azioni">
+                          <button 
+                            className="modulo-btn-dettaglio" 
+                            title="Vedi dettaglio"
+                            onClick={() => navigate(`/moduli/${modulo.id}`)}
+                          >
+                            <Eye size={16} />
+                          </button>
+                        </span>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div style={{ padding: '2rem', textAlign: 'center', color: '#999' }}>
+                    Nessun modulo recente
+                  </div>
+                )}
               </div>
             </div>
 

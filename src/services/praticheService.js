@@ -44,6 +44,14 @@ class PraticheService {
     return response.data;
   }
 
+  async visualizzaPraticheRecenti() {
+    const response = await axios.get(
+      `${API_BASE_URL}/pratica-service/visualizza-pratiche-recenti`,
+      { headers: this.getAuthHeader() }
+    );
+    return response.data;
+  }
+
 }
 
 export default new PraticheService();

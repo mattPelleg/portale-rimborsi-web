@@ -52,6 +52,14 @@ class ModuliService {
     );
     return response.data;
   }
+
+  async visualizzaModuliRecenti() {
+    const response = await axios.get(
+      `${API_BASE_URL}/modulo-service/visualizza-moduli-recenti`,
+      { headers: this.getAuthHeader() }
+    );
+    return response.data;
+  }
 }
 
 export default new ModuliService();
