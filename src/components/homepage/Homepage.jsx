@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Plane, Clock, AlertCircle, Users, Briefcase, TrendingUp, 
-  ArrowRight, User, Lock, CheckCircle2, Star, Zap
+  ArrowRight, User, Lock, Zap
 } from 'lucide-react';
 import './Homepage.css';
 
@@ -78,12 +78,6 @@ const Homepage = () => {
       bgColor: "case-card-indigo",
       features: ["Classe inferiore", "Involontario", "Rimborso %"]
     }
-  ];
-
-  const features = [
-    { icon: <CheckCircle2 size={24} />, title: "100% Trasparenza", desc: "Nessuna commissione nascosta" },
-    { icon: <Zap size={24} />, title: "Veloce & Affidabile", desc: "Tempi rapidi di elaborazione" },
-    { icon: <Star size={24} />, title: "Supporto 24/7", desc: "Team sempre disponibile" }
   ];
 
   const stats = [
@@ -176,22 +170,6 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="features-section">
-        <div className="features-content">
-          <h3 className="section-title">Perché scegliere noi?</h3>
-          <div className="features-grid">
-            {features.map((feature, idx) => (
-              <div key={idx} className="feature-card">
-                <div className="feature-icon">{feature.icon}</div>
-                <h4 className="feature-title">{feature.title}</h4>
-                <p className="feature-desc">{feature.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Cases Section */}
       <section className="cases-section">
         <div className="cases-content">
@@ -248,31 +226,38 @@ const Homepage = () => {
       {/* How It Works */}
       <section className="how-it-works-section">
         <div className="how-it-works-content">
-          <h3 className="section-title">Come Funziona</h3>
+          <h3 className="section-title">Il Nostro Processo</h3>
+          <p className="how-subtitle">Semplice, trasparente e gestito completamente da noi</p>
           
           <div className="steps-grid">
             <div className="step-card">
               <div className="step-number">1</div>
-              <h4 className="step-title">Verifica il tuo diritto</h4>
-              <p className="step-desc">Controlla se il tuo caso rientra nella normativa UE 261/2004</p>
+              <h4 className="step-title">Compila il Modulo</h4>
+              <p className="step-desc">Registrati sulla piattaforma e compila il modulo con i dati del tuo volo in pochi minuti</p>
             </div>
+
+            <div className="step-arrow">→</div>
 
             <div className="step-card">
               <div className="step-number">2</div>
-              <h4 className="step-title">Registrati e invia</h4>
-              <p className="step-desc">Crea un account e carica i documenti del tuo volo</p>
+              <h4 className="step-title">Siamo Noi a Occuparci</h4>
+              <p className="step-desc">Un nostro operatore prende in carico la tua pratica e gestisce tutto il resto per te</p>
             </div>
+
+            <div className="step-arrow">→</div>
 
             <div className="step-card">
               <div className="step-number">3</div>
-              <h4 className="step-title">Noi ci occupiamo</h4>
-              <p className="step-desc">Il nostro team gestisce la pratica con la compagnia aerea</p>
+              <h4 className="step-title">Ricevi il Rimborso</h4>
+              <p className="step-desc">Una volta ottenuto il compenso dalla compagnia, lo ricevi direttamente nel tuo conto</p>
             </div>
+          </div>
 
-            <div className="step-card">
-              <div className="step-number">4</div>
-              <h4 className="step-title">Ricevi il rimborso</h4>
-              <p className="step-desc">Ottieni il compenso direttamente nel tuo conto</p>
+          <div className="process-highlight">
+            <div className="highlight-icon">✓</div>
+            <div className="highlight-text">
+              <h4>Non devi pensare ad altro</h4>
+              <p>Il nostro team si occupa di tutta la documentazione, la comunicazione con la compagnia aerea e il follow-up della pratica. Tu puoi stare tranquillo.</p>
             </div>
           </div>
         </div>

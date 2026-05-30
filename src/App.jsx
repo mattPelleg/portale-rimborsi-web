@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Homepage from "./components/homepage/HomePage";
 import Login from "./components/login/Login";
@@ -23,6 +23,62 @@ function LoginRoute() {
 }
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Al caricamento della pagina: ripristina la sessione
+    const restoreSession = async () => {
+      try {
+        const refreshToken = authService.getRefreshToken();
+        
+        if (refreshToken) {
+          // Prova a refreshare il token
+          await authService.refreshAccessToken();
+          console.log('✓ Sessione ripristinata');
+        }
+      } catch (error) {
+        console.log('Sessione scaduta, login richiesto');
+        authService.clearAuth();
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    restoreSession();
+  }, []);
+
+  // Mentre verifichiamo la sessione, mostra un loader
+  if (isLoading) {
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        backgroundColor: '#f5f5f5'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '50px',
+            height: '50px',
+            border: '4px solid #e0e0e0',
+            borderTop: '4px solid #2563eb',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 1rem'
+          }} />
+          <p style={{ color: '#666' }}>Caricamento...</p>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Router>
       <Routes>

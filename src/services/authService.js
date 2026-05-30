@@ -1,18 +1,28 @@
-import axios from 'axios';
-
-const API_BASE_URL = '/portaleRimborsi-ws/api';
+import axiosInstance from './axiosInstance';
 
 class AuthService {
-
+  
   async login(username, password) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+      // Per login usiamo axiosInstance (senza token)
+      const response = await axiosInstance.post('/api/auth/login', {
         username,
         password
       });
 
-      if (response.data.token) {
-        localStorage.setItem('user', JSON.stringify(response.data));
+      if (response.data.accessToken) {
+        // Salva access token in memoria (volatile)
+        this.setAccessToken(response.data.accessToken);
+        
+        // Salva refresh token in sessionStorage (sopravvive al reload)
+        sessionStorage.setItem('refreshToken', response.data.refreshToken);
+        
+        // Salva user info
+        sessionStorage.setItem('user', JSON.stringify({
+          username: response.data.username,
+          email: response.data.email,
+          ruoli: response.data.ruoli
+        }));
       }
 
       return response.data;
@@ -22,51 +32,79 @@ class AuthService {
   }
 
   async logout() {
-    const user = this.getCurrentUser();
+    const token = this.getAccessToken();
 
-    if (user?.token) {
+    if (token) {
       try {
-        await axios.post(`${API_BASE_URL}/auth/logout`, {}, {
-          headers: { Authorization: `Bearer ${user.token}` }
-        });
+        // axiosInstance aggiunge il token automaticamente
+        await axiosInstance.post('/api/auth/logout', {});
       } catch (error) {
-        // Il logout locale avviene comunque anche se la chiamata al backend fallisce
         console.warn('Logout backend non riuscito:', error.message);
       }
     }
 
-    this._clearLocalStorage();
+    this.clearAuth();
+  }
+
+  async refreshAccessToken() {
+    try {
+      const refreshToken = this.getRefreshToken();
+      
+      if (!refreshToken) {
+        throw new Error('No refresh token available');
+      }
+
+      // Per refresh usiamo il refreshToken nell'header
+      const response = await axiosInstance.post(
+        '/api/auth/refresh',
+        {},
+        { headers: { Authorization: `Bearer ${refreshToken}` } }
+      );
+
+      const newAccessToken = response.data.accessToken;
+      this.setAccessToken(newAccessToken);
+
+      return newAccessToken;
+    } catch (error) {
+      // Refresh fallito: logout forzato
+      this.clearAuth();
+      throw error;
+    }
   }
 
   getCurrentUser() {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      return JSON.parse(userStr);
-    }
-    return null;
+    const userStr = sessionStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
   }
 
-  getToken() {
-    const user = this.getCurrentUser();
-    return user?.token;
+  getAccessToken() {
+    return this.accessToken || null;
+  }
+
+  getRefreshToken() {
+    return sessionStorage.getItem('refreshToken');
+  }
+
+  setAccessToken(token) {
+    this.accessToken = token;
   }
 
   isAuthenticated() {
-    return !!this.getToken();
+    return !!this.getAccessToken() && !!this.getRefreshToken();
   }
 
-  // Metodo privato per pulizia localStorage
-  _clearLocalStorage() {
-    localStorage.removeItem('user');
+  clearAuth() {
+    this.accessToken = null;
+    sessionStorage.removeItem('refreshToken');
+    sessionStorage.removeItem('user');
   }
 
   handleError(error) {
     if (error.response) {
-      const status  = error.response.status;
+      const status = error.response.status;
       const message = error.response.data;
 
       if (status === 401) {
-        // legge il messaggio dal backend se è una stringa, altrimenti fallback
         const backendMessage = typeof message === 'string'
           ? message
           : 'Credenziali non valide. Verifica username e password.';
